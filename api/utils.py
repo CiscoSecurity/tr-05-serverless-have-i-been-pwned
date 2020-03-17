@@ -23,12 +23,25 @@ def get_key() -> Optional[str]:
     return get_jwt().get('key')  # HIBP_API_KEY
 
 
+def get_json(schema):
+    data = request.get_json(force=True, silent=True, cache=False)
+
+    error = schema.validate(data) or None
+    if error:
+        data = None
+        error = {
+            'code': 'invalid payload received',
+            'message': f'Invalid JSON payload received. {json.dumps(error)}.',
+        }
+
+    return data, error
+
+
 def fetch_breaches(key, email, truncate=False):
     if key is None:
-        # Use the corresponding HIBP API error message.
         error = {
             'code': 'access denied',
-            'message': 'Access denied due to missing hibp-api-key.',
+            'message': 'Access to HIBP denied due to invalid API key.',
         }
         return None, error
 
@@ -38,17 +51,19 @@ def fetch_breaches(key, email, truncate=False):
     )
 
     headers = {
-        'user-agent': 'Threat Response',
+        'user-agent': 'Cisco Threat Response',
         'hibp-api-key': key,
     }
 
     response = requests.get(url, headers=headers)
 
+    if response.status_code == HTTPStatus.BAD_REQUEST:
+        return [], None
+
     if response.status_code == HTTPStatus.UNAUTHORIZED:
-        # Use the corresponding HIBP API error message.
         error = {
             'code': 'access denied',
-            'message': 'Access denied due to improperly formed hibp-api-key.',
+            'message': 'Access to HIBP denied due to invalid API key.',
         }
         return None, error
 
@@ -61,23 +76,19 @@ def fetch_breaches(key, email, truncate=False):
         time.sleep(timeout)
         return fetch_breaches(key, email, truncate=truncate)
 
+    if response.status_code == HTTPStatus.SERVICE_UNAVAILABLE:
+        error = {
+            'code': 'service unavailable',
+            'message': (
+                'Service temporarily unavailable. '
+                'Please try again later.'
+            ),
+        }
+        return None, error
+
     assert response.status_code == HTTPStatus.OK
 
     return response.json(), None
-
-
-def get_json(schema):
-    data = request.get_json(force=True, silent=True, cache=False)
-
-    error = schema.validate(data) or None
-    if error:
-        data = None
-        error = {
-            'code': 'invalid payload',
-            'message': f'Invalid JSON payload received. {json.dumps(error)}.',
-        }
-
-    return data, error
 
 
 def jsonify_data(data):
