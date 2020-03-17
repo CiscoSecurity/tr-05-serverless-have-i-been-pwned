@@ -225,14 +225,14 @@ def test_enrich_call_with_external_error_from_hibp_failure(route,
                                                            valid_jwt):
     for status_code, error_code, error_message in [
         (
-                HTTPStatus.UNAUTHORIZED,
-                'access denied',
-                'Access to HIBP denied due to invalid API key.',
+            HTTPStatus.UNAUTHORIZED,
+            'access denied',
+            'Access to HIBP denied due to invalid API key.',
         ),
         (
-                HTTPStatus.SERVICE_UNAVAILABLE,
-                'service unavailable',
-                'Service temporarily unavailable. Please try again later.',
+            HTTPStatus.SERVICE_UNAVAILABLE,
+            'service unavailable',
+            'Service temporarily unavailable. Please try again later.',
         ),
     ]:
         app = client.application
