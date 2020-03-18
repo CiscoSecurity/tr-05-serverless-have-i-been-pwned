@@ -98,7 +98,8 @@ def jsonify_data(data):
 def jsonify_errors(error):
     # According to the official documentation, an error here means that the
     # corresponding TR module is in an incorrect state and needs to be
-    # reconfigured:
+    # reconfigured, or the third-party service is down (for example, the API
+    # being queried has temporary issues) and thus unresponsive:
     # https://visibility.amp.cisco.com/help/alerts-errors-warnings.
     error['type'] = 'fatal'
 
