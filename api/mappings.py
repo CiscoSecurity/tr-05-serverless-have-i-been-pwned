@@ -44,8 +44,6 @@ class Indicator(Mapping):
 
         indicator['tags'] = breach['DataClasses']
 
-        indicator['timestamp'] = breach['ModifiedDate']
-
         indicator['title'] = breach['Name']
 
         return indicator

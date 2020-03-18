@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, current_app
 
 from api.utils import get_key, fetch_breaches, jsonify_errors, jsonify_data
 
@@ -10,7 +10,8 @@ def health():
     key = get_key()
 
     # Use some breached email just to check that the HIBP API key is valid.
-    _, error = fetch_breaches(key, 'user@example.com', truncate=True)
+    email = current_app.config['HIBP_TEST_EMAIL']
+    _, error = fetch_breaches(key, email, truncate=True)
 
     if error:
         return jsonify_errors(error)
