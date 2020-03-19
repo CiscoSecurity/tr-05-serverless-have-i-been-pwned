@@ -197,8 +197,8 @@ def expected_payload(any_route):
         ]
         source_email = {'type': 'email', 'value': 'dummy@gmail.com'}
         related_domains = [
-            {'type': 'domain', 'value': f'{id_}.com'}
-            for id_ in ['first', 'second', 'third']
+            {'type': 'domain', 'value': f'{id}.com'}
+            for id in ['first', 'second', 'third']
         ]
 
         payload = {
