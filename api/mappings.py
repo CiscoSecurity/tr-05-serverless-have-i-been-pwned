@@ -118,6 +118,7 @@ class Sighting(Mapping):
 class Relationship(Mapping):
     DEFAULTS = {
         'type': 'relationship',
+        'relationship_type': 'sighting-of',
         **CTIM_DEFAULTS
     }
 
@@ -126,8 +127,6 @@ class Relationship(Mapping):
         relationship: JSON = cls.DEFAULTS.copy()
 
         relationship['id'] = f'transient:{uuid.uuid4()}'
-
-        relationship['relationship_type'] = 'sighting-of'
 
         relationship['source_ref'] = sighting['id']
 
