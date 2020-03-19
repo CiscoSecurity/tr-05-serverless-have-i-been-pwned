@@ -174,6 +174,23 @@ def expected_payload(any_route):
             'to check if your account has been **compromised**.'
         )
 
+        titles = [
+            f'{id.capitalize()} Customer Data Exposure'
+            for id in ['first', 'second', 'third']
+        ]
+
+        observed_times = [
+            {'start_time': f'1970-01-0{day}T00:00:00Z'}
+            for day in [1, 2, 3]
+        ]
+
+        source_email = {'type': 'email', 'value': 'dummy@gmail.com'}
+
+        related_domains = [
+            {'type': 'domain', 'value': f'{id}.com'}
+            for id in ['first', 'second', 'third']
+        ]
+
         # Implement a dummy class initializing its instances
         # only after the first comparison with any other object.
         class LazyEqualizer:
@@ -191,16 +208,6 @@ def expected_payload(any_route):
         indicator_refs = [LazyEqualizer() for _ in range(3)]
         sighting_refs = [LazyEqualizer() for _ in range(3)]
 
-        observed_times = [
-            {'start_time': f'1970-01-0{day}T00:00:00Z'}
-            for day in [1, 2, 3]
-        ]
-        source_email = {'type': 'email', 'value': 'dummy@gmail.com'}
-        related_domains = [
-            {'type': 'domain', 'value': f'{id}.com'}
-            for id in ['first', 'second', 'third']
-        ]
-
         payload = {
             'indicators': {
                 'count': 3,
@@ -210,7 +217,7 @@ def expected_payload(any_route):
                         'description': description_md.format(id='first'),
                         'id': indicator_refs[0],
                         'severity': 'Medium',
-                        'short_description': 'First Customer Data Exposure',
+                        'short_description': titles[0],
                         'tags': ['Email addresses'],
                         'title': 'FirstExposure',
                         'valid_time': observed_times[0],
@@ -221,7 +228,7 @@ def expected_payload(any_route):
                         'description': description_md.format(id='second'),
                         'id': indicator_refs[1],
                         'severity': 'Medium',
-                        'short_description': 'Second Customer Data Exposure',
+                        'short_description': titles[1],
                         'tags': ['Email addresses'],
                         'title': 'SecondExposure',
                         'valid_time': observed_times[1],
@@ -232,7 +239,7 @@ def expected_payload(any_route):
                         'description': description_md.format(id='third'),
                         'id': indicator_refs[2],
                         'severity': 'High',
-                        'short_description': 'Third Customer Data Exposure',
+                        'short_description': titles[2],
                         'tags': ['Email addresses', 'Passwords'],
                         'title': 'ThirdExposure',
                         'valid_time': observed_times[2],
@@ -247,9 +254,7 @@ def expected_payload(any_route):
                         'confidence': 'Medium',
                         'count': 3,
                         'description': (
-                            'Email address present in '
-                            'First Customer Data Exposure '
-                            'breach.'
+                            f'Email address present in {titles[0]} breach.'
                         ),
                         'id': sighting_refs[0],
                         'observables': [source_email],
@@ -273,9 +278,7 @@ def expected_payload(any_route):
                         'confidence': 'High',
                         'count': 3,
                         'description': (
-                            'Email address present in '
-                            'Second Customer Data Exposure '
-                            'breach.'
+                            f'Email address present in {titles[1]} breach.'
                         ),
                         'id': sighting_refs[1],
                         'observables': [source_email],
@@ -299,9 +302,7 @@ def expected_payload(any_route):
                         'confidence': 'High',
                         'count': 3,
                         'description': (
-                            'Email address present in '
-                            'Third Customer Data Exposure '
-                            'breach.'
+                            f'Email address present in {titles[2]} breach.'
                         ),
                         'id': sighting_refs[2],
                         'observables': [source_email],

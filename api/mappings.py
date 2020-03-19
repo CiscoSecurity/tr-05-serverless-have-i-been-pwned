@@ -44,8 +44,8 @@ class Indicator(Mapping):
 
         indicator['confidence'] = ['Medium', 'High'][breach['IsVerified']]
 
-        # `Description` contains an overview of the breach represented in HTML
-        # markup, so convert its contents to Markdown to make comply with CTIM.
+        # `Description` contains an overview of the breach represented in HTML,
+        # so convert its contents to Markdown to make it comply with CTIM.
         indicator['description'] = markdownify(breach['Description'])
 
         indicator['severity'] = ['Medium', 'High'][
