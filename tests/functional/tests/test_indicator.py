@@ -29,7 +29,7 @@ def test_positive_indicator_email(module_headers):
     for indicator in indicators['docs']:
         assert indicator['type'] == 'indicator'
         assert indicator['producer'] == 'Have I Been Pwned'
-        assert indicator['source_uri'] == 'https://haveibeenpwned.com'
+        assert indicator['source'] == 'Have I Been Pwned Breaches'
         assert indicator['tlp'] == 'white'
         if (
             indicator['confidence'] == 'High'

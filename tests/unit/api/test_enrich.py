@@ -5,7 +5,7 @@ from urllib.parse import quote
 from authlib.jose import jwt
 from pytest import fixture
 
-from api.mappings import Indicator
+from api.mappings import Indicator, Sighting, Relationship
 from .utils import headers
 
 
@@ -114,15 +114,40 @@ def hibp_api_response(status_code):
     mock_response.status_code = status_code
 
     if status_code == HTTPStatus.OK:
+        description_html = (
+            'This is the <i>{id}</i> breach found on <b>HIBP</b>. Please '
+            'visit the <em>official</em> <a href="{id}.com">website</a> '
+            'to check if your account has been <strong>compromised</strong>.'
+        )
+
         payload_list = [
             [],
             [
                 {
-                    'Name': 'From "Name" to "title".',
-                    'Title': 'From "Title" to "short_description".',
+                    'Name': 'FirstExposure',
+                    'Title': 'First Customer Data Exposure',
+                    'Domain': 'first.com',
                     'BreachDate': '1970-01-01',
-                    'Description': 'From "Description" to "description".',
-                    'DataClasses': ['From "DataClasses" to "tags".'],
+                    'Description': description_html.format(id='first'),
+                    'DataClasses': ['Email addresses'],
+                    'IsVerified': False,
+                },
+                {
+                    'Name': 'SecondExposure',
+                    'Title': 'Second Customer Data Exposure',
+                    'Domain': 'second.com',
+                    'BreachDate': '1970-01-02',
+                    'Description': description_html.format(id='second'),
+                    'DataClasses': ['Email addresses'],
+                    'IsVerified': True,
+                },
+                {
+                    'Name': 'ThirdExposure',
+                    'Title': 'Third Customer Data Exposure',
+                    'Domain': 'third.com',
+                    'BreachDate': '1970-01-03',
+                    'Description': description_html.format(id='third'),
+                    'DataClasses': ['Email addresses', 'Passwords'],
                     'IsVerified': True,
                 },
             ],
@@ -143,22 +168,182 @@ def expected_payload(any_route):
         payload = {}
 
     if any_route.startswith('/observe'):
+        description_md = (
+            'This is the *{id}* breach found on **HIBP**. Please '
+            'visit the *official* [website]({id}.com) '
+            'to check if your account has been **compromised**.'
+        )
+
+        titles = [
+            f'{id.capitalize()} Customer Data Exposure'
+            for id in ['first', 'second', 'third']
+        ]
+
+        observed_times = [
+            {'start_time': f'1970-01-0{day}T00:00:00Z'}
+            for day in [1, 2, 3]
+        ]
+
+        source_email = {'type': 'email', 'value': 'dummy@gmail.com'}
+
+        related_domains = [
+            {'type': 'domain', 'value': f'{id}.com'}
+            for id in ['first', 'second', 'third']
+        ]
+
+        # Implement a dummy class initializing its instances
+        # only after the first comparison with any other object.
+        class LazyEqualizer:
+            NONE = object()
+
+            def __init__(self):
+                self.value = self.NONE
+
+            def __eq__(self, other):
+                if self.value is self.NONE:
+                    self.value = other
+
+                return self.value == other
+
+        indicator_refs = [LazyEqualizer() for _ in range(3)]
+        sighting_refs = [LazyEqualizer() for _ in range(3)]
+
         payload = {
             'indicators': {
-                'count': 1,
+                'count': 3,
                 'docs': [
                     {
-                        'confidence': 'High',
-                        'description': 'From "Description" to "description".',
-                        'id': mock.ANY,
+                        'confidence': 'Medium',
+                        'description': description_md.format(id='first'),
+                        'id': indicator_refs[0],
                         'severity': 'Medium',
-                        'short_description': (
-                            'From "Title" to "short_description".'
-                        ),
-                        'tags': ['From "DataClasses" to "tags".'],
-                        'title': 'From "Name" to "title".',
-                        'valid_time': {'start_time': '1970-01-01T00:00:00Z'},
+                        'short_description': titles[0],
+                        'tags': ['Email addresses'],
+                        'title': 'FirstExposure',
+                        'valid_time': observed_times[0],
                         **Indicator.DEFAULTS
+                    },
+                    {
+                        'confidence': 'High',
+                        'description': description_md.format(id='second'),
+                        'id': indicator_refs[1],
+                        'severity': 'Medium',
+                        'short_description': titles[1],
+                        'tags': ['Email addresses'],
+                        'title': 'SecondExposure',
+                        'valid_time': observed_times[1],
+                        **Indicator.DEFAULTS
+                    },
+                    {
+                        'confidence': 'High',
+                        'description': description_md.format(id='third'),
+                        'id': indicator_refs[2],
+                        'severity': 'High',
+                        'short_description': titles[2],
+                        'tags': ['Email addresses', 'Passwords'],
+                        'title': 'ThirdExposure',
+                        'valid_time': observed_times[2],
+                        **Indicator.DEFAULTS
+                    },
+                ],
+            },
+            'sightings': {
+                'count': 3,
+                'docs': [
+                    {
+                        'confidence': 'Medium',
+                        'count': 3,
+                        'description': (
+                            f'Email address present in {titles[0]} breach.'
+                        ),
+                        'id': sighting_refs[0],
+                        'observables': [source_email],
+                        'observed_time': observed_times[0],
+                        'relations': [{
+                            'origin': Sighting.DEFAULTS['source'],
+                            'origin_uri': Sighting.DEFAULTS['source_uri'],
+                            'related': related_domains[0],
+                            'relation': 'Leaked_From',
+                            'source': source_email,
+                        }],
+                        'severity': 'Medium',
+                        'targets': [{
+                            'observables': [source_email],
+                            'observed_time':  observed_times[0],
+                            'type': 'email',
+                        }],
+                        **Sighting.DEFAULTS
+                    },
+                    {
+                        'confidence': 'High',
+                        'count': 3,
+                        'description': (
+                            f'Email address present in {titles[1]} breach.'
+                        ),
+                        'id': sighting_refs[1],
+                        'observables': [source_email],
+                        'observed_time': observed_times[1],
+                        'relations': [{
+                            'origin': Sighting.DEFAULTS['source'],
+                            'origin_uri': Sighting.DEFAULTS['source_uri'],
+                            'related': related_domains[1],
+                            'relation': 'Leaked_From',
+                            'source': source_email,
+                        }],
+                        'severity': 'Medium',
+                        'targets': [{
+                            'observables': [source_email],
+                            'observed_time': observed_times[1],
+                            'type': 'email',
+                        }],
+                        **Sighting.DEFAULTS
+                    },
+                    {
+                        'confidence': 'High',
+                        'count': 3,
+                        'description': (
+                            f'Email address present in {titles[2]} breach.'
+                        ),
+                        'id': sighting_refs[2],
+                        'observables': [source_email],
+                        'observed_time': observed_times[2],
+                        'relations': [{
+                            'origin': Sighting.DEFAULTS['source'],
+                            'origin_uri': Sighting.DEFAULTS['source_uri'],
+                            'related': related_domains[2],
+                            'relation': 'Leaked_From',
+                            'source': source_email,
+                        }],
+                        'severity': 'High',
+                        'targets': [{
+                            'observables': [source_email],
+                            'observed_time': observed_times[2],
+                            'type': 'email',
+                        }],
+                        **Sighting.DEFAULTS
+                    },
+                ]
+            },
+            'relationships': {
+                'count': 3,
+                'docs': [
+                    {
+                        'id': mock.ANY,
+                        'source_ref': sighting_refs[0],
+                        'target_ref': indicator_refs[0],
+                        **Relationship.DEFAULTS
+                    },
+                    {
+                        'id': mock.ANY,
+                        'source_ref': sighting_refs[1],
+                        'target_ref': indicator_refs[1],
+                        **Relationship.DEFAULTS
+                    },
+                    {
+                        'id': mock.ANY,
+                        'source_ref': sighting_refs[2],
+                        'target_ref': indicator_refs[2],
+                        **Relationship.DEFAULTS
                     },
                 ],
             },

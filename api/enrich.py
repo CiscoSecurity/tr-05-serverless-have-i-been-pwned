@@ -2,7 +2,7 @@ from functools import partial
 
 from flask import Blueprint
 
-from api.mappings import Indicator
+from api.mappings import Indicator, Sighting, Relationship
 from api.schemas import ObservableSchema
 from api.utils import (
     get_json, jsonify_data, jsonify_errors, get_key, fetch_breaches
@@ -36,6 +36,8 @@ def observe_observables():
     key = get_key()
 
     indicators = []
+    sightings = []
+    relationships = []
 
     for email in emails:
         breaches, error = fetch_breaches(key, email)
@@ -43,9 +45,16 @@ def observe_observables():
         if error:
             return jsonify_errors(error)
 
-        indicators.extend(
-            Indicator.map(email, breach) for breach in breaches
-        )
+        count = len(breaches)
+
+        for breach in breaches:
+            indicator = Indicator.map(breach)
+            sighting = Sighting.map(breach, count, email)
+            relationship = Relationship.map(indicator, sighting)
+
+            indicators.append(indicator)
+            sightings.append(sighting)
+            relationships.append(relationship)
 
     data = {}
 
@@ -54,6 +63,12 @@ def observe_observables():
 
     if indicators:
         data['indicators'] = format_docs(indicators)
+
+    if sightings:
+        data['sightings'] = format_docs(sightings)
+
+    if relationships:
+        data['relationships'] = format_docs(relationships)
 
     return jsonify_data(data)
 
