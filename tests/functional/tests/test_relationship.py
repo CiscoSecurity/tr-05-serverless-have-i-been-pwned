@@ -28,13 +28,13 @@ def test_positive_relationship_email(module_headers):
     indicator = [
         d for d
         in module_response['indicators']['docs']
-        if d.get('title') == 'Apollo'
+        if d['title'] == 'Apollo'
     ][0]
     # Get one sighting that is expected to be connected to taken indicator
     sighting = [
         d for d
         in module_response['sightings']['docs']
-        if 'Apollo' in d.get('description')
+        if 'Apollo' in d['description']
     ][0]
     # Validate that entities are connected
     relationship = [

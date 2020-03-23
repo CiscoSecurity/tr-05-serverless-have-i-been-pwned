@@ -37,7 +37,7 @@ def test_positive_sighting_email(module_headers):
         assert sighting['targets'][0]['observables'] == [payload]
     # check properties of one unique sighting
     sighting = [
-        d for d in sightings['docs'] if 'Apollo' in d.get('description')][0]
+        d for d in sightings['docs'] if 'Apollo' in d['description']][0]
     relation = {
         'origin': 'Have I Been Pwned',
         'origin_uri': 'https://haveibeenpwned.com',
