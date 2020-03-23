@@ -39,7 +39,7 @@ def test_positive_indicator_email(module_headers):
         else:
             assert indicator['severity'] == 'Medium'
     # check properties of one unique indicator
-    indicator = [d for d in indicators['docs'] if d.get('title') == 'PDL'][0]
+    indicator = [d for d in indicators['docs'] if d['title'] == 'PDL'][0]
     assert indicator[
         'short_description'] == 'Data Enrichment Exposure From PDL Customer'
     assert (
