@@ -40,7 +40,7 @@ def test_positive_relationship_email(module_headers):
     relationship = [
         d for d
         in module_response['relationships']['docs']
-        if d.get('source_ref') == sighting['id']
+        if d['source_ref'] == sighting['id']
     ]
     assert relationship, 'There is no relationship for provided sighting'
     assert relationship[0]['type'] == 'relationship'
