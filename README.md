@@ -77,7 +77,7 @@ a `breach` for some email. If the `breach` is verified (field `IsVerified`,
 type `boolean`), then the value for `confidence` will be `High`, otherwise
 `Medium`. At the same time, each `breach` also knows some information about
 the nature of the data compromised in the `breach` as a string array of
-impacted data classes (field `DataClasses`, type `string[]`). Thus if the
+impacted data classes (field `DataClasses`, type `string[]`). Thus, if the
 `breach` is verified and the password is also known to be compromised (i.e. the
 data classes contain the `Passwords` data class), then the value for `severity`
 will be `High`, otherwise `Medium`.
