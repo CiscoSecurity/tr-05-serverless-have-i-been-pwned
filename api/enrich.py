@@ -1,6 +1,6 @@
 from functools import partial
 
-from flask import Blueprint
+from flask import Blueprint, current_app
 
 from api.mappings import Indicator, Sighting, Relationship
 from api.schemas import ObservableSchema
@@ -47,9 +47,11 @@ def observe_observables():
 
         count = len(breaches)
 
+        source_uri = current_app.config['HIBP_UI_URL'].format(email=email)
+
         for breach in breaches:
             indicator = Indicator.map(breach)
-            sighting = Sighting.map(breach, count, email)
+            sighting = Sighting.map(breach, count, email, source_uri)
             relationship = Relationship.map(indicator, sighting)
 
             indicators.append(indicator)

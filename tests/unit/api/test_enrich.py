@@ -1,6 +1,5 @@
 from http import HTTPStatus
 from unittest import mock
-from urllib.parse import quote
 
 from authlib.jose import jwt
 from pytest import fixture
@@ -161,7 +160,9 @@ def hibp_api_response(status_code):
 
 
 @fixture(scope='module')
-def expected_payload(any_route):
+def expected_payload(any_route, client):
+    app = client.application
+
     payload = None
 
     if any_route.startswith('/deliberate'):
@@ -185,6 +186,8 @@ def expected_payload(any_route):
         ]
 
         source_email = {'type': 'email', 'value': 'dummy@gmail.com'}
+
+        source_uri = app.config['HIBP_UI_URL'].format(email='dummy@gmail.com')
 
         related_domains = [
             {'type': 'domain', 'value': f'{id}.com'}
@@ -261,12 +264,13 @@ def expected_payload(any_route):
                         'observed_time': observed_times[0],
                         'relations': [{
                             'origin': Sighting.DEFAULTS['source'],
-                            'origin_uri': Sighting.DEFAULTS['source_uri'],
+                            'origin_uri': source_uri,
                             'related': related_domains[0],
                             'relation': 'Leaked_From',
                             'source': source_email,
                         }],
                         'severity': 'Medium',
+                        'source_uri': source_uri,
                         'targets': [{
                             'observables': [source_email],
                             'observed_time':  observed_times[0],
@@ -285,12 +289,13 @@ def expected_payload(any_route):
                         'observed_time': observed_times[1],
                         'relations': [{
                             'origin': Sighting.DEFAULTS['source'],
-                            'origin_uri': Sighting.DEFAULTS['source_uri'],
+                            'origin_uri': source_uri,
                             'related': related_domains[1],
                             'relation': 'Leaked_From',
                             'source': source_email,
                         }],
                         'severity': 'Medium',
+                        'source_uri': source_uri,
                         'targets': [{
                             'observables': [source_email],
                             'observed_time': observed_times[1],
@@ -309,12 +314,13 @@ def expected_payload(any_route):
                         'observed_time': observed_times[2],
                         'relations': [{
                             'origin': Sighting.DEFAULTS['source'],
-                            'origin_uri': Sighting.DEFAULTS['source_uri'],
+                            'origin_uri': source_uri,
                             'related': related_domains[2],
                             'relation': 'Leaked_From',
                             'source': source_email,
                         }],
                         'severity': 'High',
+                        'source_uri': source_uri,
                         'targets': [{
                             'observables': [source_email],
                             'observed_time': observed_times[2],
@@ -378,7 +384,7 @@ def test_enrich_call_success(any_route,
 
         expected_urls = [
             app.config['HIBP_API_URL'].format(
-                email=quote(email, safe=''),
+                email=email,
                 truncate='false',
             )
             for email in emails
@@ -419,6 +425,11 @@ def test_enrich_call_with_external_error_from_hibp_failure(route,
             'service unavailable',
             'Service temporarily unavailable. Please try again later.',
         ),
+        (
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+            'oops',
+            'Something went wrong.',
+        ),
     ]:
         app = client.application
 
@@ -435,7 +446,7 @@ def test_enrich_call_with_external_error_from_hibp_failure(route,
         )
 
         expected_url = app.config['HIBP_API_URL'].format(
-            email=quote(email, safe=''),
+            email=email,
             truncate='false',
         )
 

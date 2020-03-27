@@ -16,3 +16,5 @@ class Config:
     )
 
     HIBP_USER_AGENT = 'Cisco Threat Response'
+
+    HIBP_UI_URL = 'https://haveibeenpwned.com/account/{email}'
