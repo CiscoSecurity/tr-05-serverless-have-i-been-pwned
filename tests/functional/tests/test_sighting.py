@@ -33,7 +33,7 @@ def test_positive_sighting_email(module_headers):
         assert sighting['observables'] == [payload]
         assert sighting['source'] == 'Have I Been Pwned'
         assert sighting['source_uri'] == (
-            'https://haveibeenpwned.com/account/fluffy@cisco.com'
+            'https://haveibeenpwned.com/account/fluffy%40cisco.com'
         )
         assert sighting['targets'][0]['type'] == 'email'
         assert sighting['targets'][0]['observables'] == [payload]
@@ -42,7 +42,7 @@ def test_positive_sighting_email(module_headers):
         d for d in sightings['docs'] if 'Apollo' in d['description']][0]
     relation = {
         'origin': 'Have I Been Pwned',
-        'origin_uri': 'https://haveibeenpwned.com/account/fluffy@cisco.com',
+        'origin_uri': 'https://haveibeenpwned.com/account/fluffy%40cisco.com',
         'relation': 'Leaked_From',
         'source': payload,
         'related': {'value': 'apollo.io', 'type': 'domain'}

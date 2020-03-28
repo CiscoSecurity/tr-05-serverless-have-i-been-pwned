@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from unittest import mock
+from urllib.parse import quote
 
 from authlib.jose import jwt
 from pytest import fixture
@@ -8,12 +9,15 @@ from api.mappings import Indicator, Sighting, Relationship
 from .utils import headers
 
 
-def routes():
+def implemented_routes():
     yield '/observe/observables'
+    yield '/refer/observables'
 
 
-@fixture(scope='module', params=routes(), ids=lambda route: f'POST {route}')
-def route(request):
+@fixture(scope='module',
+         params=implemented_routes(),
+         ids=lambda route: f'POST {route}')
+def implemented_route(request):
     return request.param
 
 
@@ -22,8 +26,10 @@ def invalid_json():
     return [{'type': 'unknown', 'value': ''}]
 
 
-def test_enrich_call_with_invalid_json_failure(route, client, invalid_json):
-    response = client.post(route, json=invalid_json)
+def test_enrich_call_with_invalid_json_failure(implemented_route,
+                                               client,
+                                               invalid_json):
+    response = client.post(implemented_route, json=invalid_json)
 
     # The actual error message is quite unwieldy, so let's just ignore it.
     expected_payload = {
@@ -38,6 +44,17 @@ def test_enrich_call_with_invalid_json_failure(route, client, invalid_json):
 
     assert response.status_code == HTTPStatus.OK
     assert response.get_json() == expected_payload
+
+
+def hibp_api_routes():
+    yield '/observe/observables'
+
+
+@fixture(scope='module',
+         params=hibp_api_routes(),
+         ids=lambda route: f'POST {route}')
+def hibp_api_route(request):
+    return request.param
 
 
 @fixture(scope='module')
@@ -66,11 +83,11 @@ def valid_json():
     ]
 
 
-def test_enrich_call_with_valid_json_but_invalid_jwt_failure(route,
+def test_enrich_call_with_valid_json_but_invalid_jwt_failure(hibp_api_route,
                                                              client,
                                                              valid_json,
                                                              invalid_jwt):
-    response = client.post(route,
+    response = client.post(hibp_api_route,
                            json=valid_json,
                            headers=headers(invalid_jwt))
 
@@ -152,9 +169,9 @@ def hibp_api_response(status_code):
             ],
         ]
 
-        payloads_list_iter = iter(payload_list)
+        payload_list_iter = iter(payload_list)
 
-        mock_response.json = lambda: next(payloads_list_iter)
+        mock_response.json = lambda: next(payload_list_iter)
 
     return mock_response
 
@@ -187,7 +204,9 @@ def expected_payload(any_route, client):
 
         source_email = {'type': 'email', 'value': 'dummy@gmail.com'}
 
-        source_uri = app.config['HIBP_UI_URL'].format(email='dummy@gmail.com')
+        source_uri = app.config['HIBP_UI_URL'].format(
+            email=quote('dummy@gmail.com', safe='')
+        )
 
         related_domains = [
             {'type': 'domain', 'value': f'{id}.com'}
@@ -356,7 +375,33 @@ def expected_payload(any_route, client):
         }
 
     if any_route.startswith('/refer'):
-        payload = []
+        emails = [
+            quote(email, safe='')
+            for email in [
+                'dummy@cisco.com',
+                'dummy@gmail.com',
+            ]
+        ]
+
+        urls = [
+            app.config['HIBP_UI_URL'].format(email=email)
+            for email in emails
+        ]
+
+        payload = [
+            {
+                'id': f'ref-hibp-search-email-{email}',
+                'title': 'Search for this email',
+                'description': (
+                    'Check this email status with Have I Been Pwned'
+                ),
+                'url': url,
+                'categories': ['Search', 'Have I Been Pwned'],
+            }
+            for email, url in zip(emails, urls)
+        ]
+
+    assert payload is not None, f'Unknown route: {any_route}.'
 
     return {'data': payload}
 
@@ -369,7 +414,12 @@ def test_enrich_call_success(any_route,
                              expected_payload):
     app = client.application
 
-    if any_route in routes():
+    response = None
+
+    if any_route.startswith('/deliberate'):
+        response = client.post(any_route)
+
+    if any_route.startswith('/observe'):
         hibp_api_request.return_value = hibp_api_response(HTTPStatus.OK)
 
         response = client.post(any_route,
@@ -384,7 +434,7 @@ def test_enrich_call_success(any_route,
 
         expected_urls = [
             app.config['HIBP_API_URL'].format(
-                email=email,
+                email=quote(email, safe=''),
                 truncate='false',
             )
             for email in emails
@@ -402,14 +452,16 @@ def test_enrich_call_success(any_route,
             for expected_url in expected_urls
         ])
 
-    else:
-        response = client.post(any_route)
+    if any_route.startswith('/refer'):
+        response = client.post(any_route, json=valid_json)
+
+    assert response is not None, f'Unknown route: {any_route}.'
 
     assert response.status_code == HTTPStatus.OK
     assert response.get_json() == expected_payload
 
 
-def test_enrich_call_with_external_error_from_hibp_failure(route,
+def test_enrich_call_with_external_error_from_hibp_failure(hibp_api_route,
                                                            client,
                                                            valid_json,
                                                            hibp_api_request,
@@ -435,7 +487,7 @@ def test_enrich_call_with_external_error_from_hibp_failure(route,
 
         hibp_api_request.return_value = hibp_api_response(status_code)
 
-        response = client.post(route,
+        response = client.post(hibp_api_route,
                                json=valid_json,
                                headers=headers(valid_jwt))
 
@@ -446,7 +498,7 @@ def test_enrich_call_with_external_error_from_hibp_failure(route,
         )
 
         expected_url = app.config['HIBP_API_URL'].format(
-            email=email,
+            email=quote(email, safe=''),
             truncate='false',
         )
 

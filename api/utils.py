@@ -2,6 +2,7 @@ import json
 import time
 from http import HTTPStatus
 from typing import Optional
+from urllib.parse import quote
 
 import requests
 from authlib.jose import jwt
@@ -45,7 +46,7 @@ def fetch_breaches(key, email, truncate=False):
         return None, error
 
     url = current_app.config['HIBP_API_URL'].format(
-        email=email,
+        email=quote(email, safe=''),
         truncate=str(truncate).lower(),
     )
 

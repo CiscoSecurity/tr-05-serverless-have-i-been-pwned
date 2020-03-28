@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from unittest import mock
+from urllib.parse import quote
 
 from authlib.jose import jwt
 from pytest import fixture
@@ -57,7 +58,7 @@ def test_health_call_success(route, client, hibp_api_request, valid_jwt):
     response = client.post(route, headers=headers(valid_jwt))
 
     expected_url = app.config['HIBP_API_URL'].format(
-        email=app.config['HIBP_TEST_EMAIL'],
+        email=quote(app.config['HIBP_TEST_EMAIL'], safe=''),
         truncate='true',
     )
 
@@ -105,7 +106,7 @@ def test_health_call_with_external_error_from_hibp_failure(route,
         email = app.config['HIBP_TEST_EMAIL']
 
         expected_url = app.config['HIBP_API_URL'].format(
-            email=email,
+            email=quote(email, safe=''),
             truncate='true',
         )
 
