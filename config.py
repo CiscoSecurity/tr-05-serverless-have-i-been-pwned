@@ -15,4 +15,11 @@ class Config:
         '?truncateResponse={truncate}'
     )
 
-    HIBP_USER_AGENT = 'Cisco Threat Response'
+    # HIBP returns 403 Forbidden "API request must include a user agent"
+    # when using angle brackets, only round brackets are acceptable...
+    HIBP_USER_AGENT = (
+        'Cisco Threat Response Integrations '
+        '(tr-integrations-support@cisco.com)'
+    )
+
+    HIBP_UI_URL = 'https://haveibeenpwned.com/account/{email}'

@@ -66,13 +66,14 @@ class Sighting(Mapping):
         'type': 'sighting',
         'internal': False,
         'source': 'Have I Been Pwned',
-        'source_uri': 'https://haveibeenpwned.com',
         'title': 'Found on Have I Been Pwned',
         **CTIM_DEFAULTS
     }
 
     @classmethod
-    def map(cls, breach: JSON, count: int, email: str) -> JSON:
+    def map(
+        cls, breach: JSON, count: int, email: str, source_uri: str
+    ) -> JSON:
         sighting: JSON = cls.DEFAULTS.copy()
 
         sighting['confidence'] = ['Medium', 'High'][breach['IsVerified']]
@@ -99,12 +100,14 @@ class Sighting(Mapping):
                 'related': {'type': 'domain', 'value': breach['Domain']},
                 'relation': 'Leaked_From',
                 'source': {'type': 'email', 'value': email},
-                'origin_uri': sighting['source_uri'],
+                'origin_uri': source_uri,
             }]
 
         sighting['severity'] = ['Medium', 'High'][
             breach['IsVerified'] and 'Passwords' in breach['DataClasses']
         ]
+
+        sighting['source_uri'] = source_uri
 
         sighting['targets'] = [{
             'observables': sighting['observables'],

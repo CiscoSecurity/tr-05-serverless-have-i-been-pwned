@@ -86,7 +86,14 @@ def fetch_breaches(key, email, truncate=False):
         }
         return None, error
 
-    assert response.status_code == HTTPStatus.OK
+    # Any other error types aren't officially documented,
+    # so simply can't be handled in a meaningful way...
+    if response.status_code != HTTPStatus.OK:
+        error = {
+            'code': 'oops',
+            'message': 'Something went wrong.',
+        }
+        return None, error
 
     return response.json(), None
 

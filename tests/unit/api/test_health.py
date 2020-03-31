@@ -57,14 +57,18 @@ def test_health_call_success(route, client, hibp_api_request, valid_jwt):
 
     response = client.post(route, headers=headers(valid_jwt))
 
+    email = app.config['HIBP_TEST_EMAIL']
+
     expected_url = app.config['HIBP_API_URL'].format(
-        email=quote(app.config['HIBP_TEST_EMAIL'], safe=''),
+        email=quote(email, safe=''),
         truncate='true',
     )
 
     expected_headers = {
         'user-agent': app.config['HIBP_USER_AGENT'],
-        'hibp-api-key': jwt.decode(valid_jwt, app.config['SECRET_KEY'])['key'],
+        'hibp-api-key': (
+            jwt.decode(valid_jwt, app.config['SECRET_KEY'])['key']
+        ),
     }
 
     hibp_api_request.assert_called_once_with(expected_url,
@@ -90,6 +94,11 @@ def test_health_call_with_external_error_from_hibp_failure(route,
             HTTPStatus.SERVICE_UNAVAILABLE,
             'service unavailable',
             'Service temporarily unavailable. Please try again later.',
+        ),
+        (
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+            'oops',
+            'Something went wrong.',
         ),
     ]:
         app = client.application

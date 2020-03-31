@@ -1,6 +1,7 @@
 from functools import partial
+from urllib.parse import quote
 
-from flask import Blueprint
+from flask import Blueprint, current_app
 
 from api.mappings import Indicator, Sighting, Relationship
 from api.schemas import ObservableSchema
@@ -47,9 +48,13 @@ def observe_observables():
 
         count = len(breaches)
 
+        source_uri = current_app.config['HIBP_UI_URL'].format(
+            email=quote(email, safe='')
+        )
+
         for breach in breaches:
             indicator = Indicator.map(breach)
-            sighting = Sighting.map(breach, count, email)
+            sighting = Sighting.map(breach, count, email, source_uri)
             relationship = Relationship.map(indicator, sighting)
 
             indicators.append(indicator)
@@ -75,5 +80,26 @@ def observe_observables():
 
 @enrich_api.route('/refer/observables', methods=['POST'])
 def refer_observables():
-    # There are no references (i.e. clickable links) to show.
-    return jsonify_data([])
+    observables, error = get_observables()
+
+    if error:
+        return jsonify_errors(error)
+
+    emails = [
+        observable['value']
+        for observable in observables
+        if observable['type'] == 'email'
+    ]
+
+    data = [
+        {
+            'id': f'ref-hibp-search-email-{email}',
+            'title': 'Search for this email',
+            'description': 'Check this email status with Have I Been Pwned',
+            'url': current_app.config['HIBP_UI_URL'].format(email=email),
+            'categories': ['Search', 'Have I Been Pwned'],
+        }
+        for email in map(lambda email: quote(email, safe=''), emails)
+    ]
+
+    return jsonify_data(data)
