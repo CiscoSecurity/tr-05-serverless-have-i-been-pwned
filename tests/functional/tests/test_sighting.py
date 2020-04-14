@@ -40,6 +40,9 @@ def test_positive_sighting_email(module_headers):
     # check properties of one unique sighting
     sighting = [
         d for d in sightings['docs'] if 'Apollo' in d['description']][0]
+    assert sighting['description'] == (
+        'fluffy@cisco.com present in Apollo breach.'
+    )
     relation = {
         'origin': 'Have I Been Pwned',
         'origin_uri': 'https://haveibeenpwned.com/account/fluffy%40cisco.com',
