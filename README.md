@@ -65,6 +65,22 @@ http POST "${URL}"/health Authorization:"Bearer ${JWT}"
 http POST "${URL}"/observe/observables Authorization:"Bearer ${JWT}" < observables.json
 ```
 
+## JSON Web Token Structure
+
+- Header
+```json
+{
+  "alg": "HS256"
+}
+```
+
+- Payload
+```json
+{
+  "key": "<HIBP_API_KEY>"
+}
+```
+
 ## Mapping Details
 
 Each HIBP breach for an email generates 3 CTIM entities: an indicator,

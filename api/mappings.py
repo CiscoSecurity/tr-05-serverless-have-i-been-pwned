@@ -89,7 +89,7 @@ class Sighting(Mapping):
         }
 
         sighting['description'] = (
-            f'Email address present in {breach["Title"]} breach.'
+            f'{email} present in {breach["Title"]} breach.'
         )
 
         sighting['observables'] = [{'type': 'email', 'value': email}]

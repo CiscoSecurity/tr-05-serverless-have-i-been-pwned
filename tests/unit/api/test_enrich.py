@@ -276,7 +276,8 @@ def expected_payload(any_route, client):
                         'confidence': 'Medium',
                         'count': 3,
                         'description': (
-                            f'Email address present in {titles[0]} breach.'
+                            f'{source_email["value"]} '
+                            f'present in {titles[0]} breach.'
                         ),
                         'id': sighting_refs[0],
                         'observables': [source_email],
@@ -301,7 +302,8 @@ def expected_payload(any_route, client):
                         'confidence': 'High',
                         'count': 3,
                         'description': (
-                            f'Email address present in {titles[1]} breach.'
+                            f'{source_email["value"]} '
+                            f'present in {titles[1]} breach.'
                         ),
                         'id': sighting_refs[1],
                         'observables': [source_email],
@@ -326,7 +328,8 @@ def expected_payload(any_route, client):
                         'confidence': 'High',
                         'count': 3,
                         'description': (
-                            f'Email address present in {titles[2]} breach.'
+                            f'{source_email["value"]} '
+                            f'present in {titles[2]} breach.'
                         ),
                         'id': sighting_refs[2],
                         'observables': [source_email],
