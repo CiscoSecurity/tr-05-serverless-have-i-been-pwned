@@ -51,7 +51,7 @@ def fetch_breaches(key, email, truncate=False):
     )
 
     headers = {
-        'user-agent': current_app.config['HIBP_USER_AGENT'],
+        'user-agent': current_app.config['CTR_USER_AGENT'],
         'hibp-api-key': key,
     }
 

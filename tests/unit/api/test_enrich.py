@@ -444,7 +444,7 @@ def test_enrich_call_success(any_route,
         ]
 
         expected_headers = {
-            'user-agent': app.config['HIBP_USER_AGENT'],
+            'user-agent': app.config['CTR_USER_AGENT'],
             'hibp-api-key': (
                 jwt.decode(valid_jwt, app.config['SECRET_KEY'])['key']
             ),
@@ -506,7 +506,7 @@ def test_enrich_call_with_external_error_from_hibp_failure(hibp_api_route,
         )
 
         expected_headers = {
-            'user-agent': app.config['HIBP_USER_AGENT'],
+            'user-agent': app.config['CTR_USER_AGENT'],
             'hibp-api-key': (
                 jwt.decode(valid_jwt, app.config['SECRET_KEY'])['key']
             ),
