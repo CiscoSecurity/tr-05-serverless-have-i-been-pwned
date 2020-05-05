@@ -235,14 +235,14 @@ def expected_payload(any_route, client):
                 'count': 3,
                 'docs': [
                     {
-                        'confidence': 'Medium',
-                        'description': description_md.format(id='first'),
-                        'id': indicator_refs[0],
-                        'severity': 'Medium',
-                        'short_description': titles[0],
-                        'tags': ['Email addresses'],
-                        'title': 'FirstExposure',
-                        'valid_time': observed_times[0],
+                        'confidence': 'High',
+                        'description': description_md.format(id='third'),
+                        'id': indicator_refs[2],
+                        'severity': 'High',
+                        'short_description': titles[2],
+                        'tags': ['Email addresses', 'Passwords'],
+                        'title': 'ThirdExposure',
+                        'valid_time': observed_times[2],
                         **Indicator.DEFAULTS
                     },
                     {
@@ -257,14 +257,14 @@ def expected_payload(any_route, client):
                         **Indicator.DEFAULTS
                     },
                     {
-                        'confidence': 'High',
-                        'description': description_md.format(id='third'),
-                        'id': indicator_refs[2],
-                        'severity': 'High',
-                        'short_description': titles[2],
-                        'tags': ['Email addresses', 'Passwords'],
-                        'title': 'ThirdExposure',
-                        'valid_time': observed_times[2],
+                        'confidence': 'Medium',
+                        'description': description_md.format(id='first'),
+                        'id': indicator_refs[0],
+                        'severity': 'Medium',
+                        'short_description': titles[0],
+                        'tags': ['Email addresses'],
+                        'title': 'FirstExposure',
+                        'valid_time': observed_times[0],
                         **Indicator.DEFAULTS
                     },
                 ],
@@ -273,27 +273,27 @@ def expected_payload(any_route, client):
                 'count': 3,
                 'docs': [
                     {
-                        'confidence': 'Medium',
+                        'confidence': 'High',
                         'count': 3,
                         'description': (
                             f'{source_email["value"]} '
-                            f'present in {titles[0]} breach.'
+                            f'present in {titles[2]} breach.'
                         ),
-                        'id': sighting_refs[0],
+                        'id': sighting_refs[2],
                         'observables': [source_email],
-                        'observed_time': observed_times[0],
+                        'observed_time': observed_times[2],
                         'relations': [{
                             'origin': Sighting.DEFAULTS['source'],
                             'origin_uri': source_uri,
-                            'related': related_domains[0],
+                            'related': related_domains[2],
                             'relation': 'Leaked_From',
                             'source': source_email,
                         }],
-                        'severity': 'Medium',
+                        'severity': 'High',
                         'source_uri': source_uri,
                         'targets': [{
                             'observables': [source_email],
-                            'observed_time':  observed_times[0],
+                            'observed_time': observed_times[2],
                             'type': 'email',
                         }],
                         **Sighting.DEFAULTS
@@ -325,27 +325,27 @@ def expected_payload(any_route, client):
                         **Sighting.DEFAULTS
                     },
                     {
-                        'confidence': 'High',
+                        'confidence': 'Medium',
                         'count': 3,
                         'description': (
                             f'{source_email["value"]} '
-                            f'present in {titles[2]} breach.'
+                            f'present in {titles[0]} breach.'
                         ),
-                        'id': sighting_refs[2],
+                        'id': sighting_refs[0],
                         'observables': [source_email],
-                        'observed_time': observed_times[2],
+                        'observed_time': observed_times[0],
                         'relations': [{
                             'origin': Sighting.DEFAULTS['source'],
                             'origin_uri': source_uri,
-                            'related': related_domains[2],
+                            'related': related_domains[0],
                             'relation': 'Leaked_From',
                             'source': source_email,
                         }],
-                        'severity': 'High',
+                        'severity': 'Medium',
                         'source_uri': source_uri,
                         'targets': [{
                             'observables': [source_email],
-                            'observed_time': observed_times[2],
+                            'observed_time': observed_times[0],
                             'type': 'email',
                         }],
                         **Sighting.DEFAULTS
@@ -357,8 +357,8 @@ def expected_payload(any_route, client):
                 'docs': [
                     {
                         'id': mock.ANY,
-                        'source_ref': sighting_refs[0],
-                        'target_ref': indicator_refs[0],
+                        'source_ref': sighting_refs[2],
+                        'target_ref': indicator_refs[2],
                         **Relationship.DEFAULTS
                     },
                     {
@@ -369,8 +369,8 @@ def expected_payload(any_route, client):
                     },
                     {
                         'id': mock.ANY,
-                        'source_ref': sighting_refs[2],
-                        'target_ref': indicator_refs[2],
+                        'source_ref': sighting_refs[0],
+                        'target_ref': indicator_refs[0],
                         **Relationship.DEFAULTS
                     },
                 ],
