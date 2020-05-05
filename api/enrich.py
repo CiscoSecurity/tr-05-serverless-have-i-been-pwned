@@ -1,4 +1,5 @@
 from functools import partial
+from operator import itemgetter
 from urllib.parse import quote
 
 from flask import Blueprint, current_app
@@ -40,13 +41,19 @@ def observe_observables():
     sightings = []
     relationships = []
 
+    limit = current_app.config['CTR_ENTITIES_LIMIT']
+
     for email in emails:
         breaches, error = fetch_breaches(key, email)
 
         if error:
             return jsonify_errors(error)
 
+        breaches.sort(key=itemgetter('BreachDate'), reverse=True)
+
         count = len(breaches)
+
+        breaches = breaches[:limit]
 
         source_uri = current_app.config['HIBP_UI_URL'].format(
             email=quote(email, safe='')
