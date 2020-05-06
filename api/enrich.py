@@ -51,6 +51,7 @@ def observe_observables():
 
         breaches.sort(key=itemgetter('BreachDate'), reverse=True)
 
+        # Save the total number of found breaches before limiting them.
         count = len(breaches)
 
         breaches = breaches[:limit]
