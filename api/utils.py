@@ -1,5 +1,4 @@
 import json
-import time
 from http import HTTPStatus
 from typing import Optional
 from urllib.parse import quote
@@ -71,10 +70,14 @@ def fetch_breaches(key, email, truncate=False):
         return [], None
 
     if response.status_code == HTTPStatus.TOO_MANY_REQUESTS:
-        # Try again after some timeout suggested by the HIBP API.
-        timeout = int(response.headers['retry-after'])
-        time.sleep(timeout)
-        return fetch_breaches(key, email, truncate=truncate)
+        error = response.json()
+        # The HIBP API error response payload is already well formatted,
+        # so use the original message containing some suggested timeout.
+        error = {
+            'code': 'too many requests',
+            'message': error['message'],
+        }
+        return None, error
 
     if response.status_code == HTTPStatus.SERVICE_UNAVAILABLE:
         error = {
