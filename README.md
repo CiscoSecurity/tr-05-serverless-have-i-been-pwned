@@ -65,21 +65,17 @@ http POST "${URL}"/health Authorization:"Bearer ${JWT}"
 http POST "${URL}"/observe/observables Authorization:"Bearer ${JWT}" < observables.json
 ```
 
-## JSON Web Token Structure
+## JWT
 
-- Header
-```json
-{
-  "alg": "HS256"
-}
-```
-
-- Payload
 ```json
 {
   "key": "<HIBP_API_KEY>"
 }
 ```
+
+Check the full guide on
+[JWT](https://github.com/CiscoSecurity/tr-05-serverless-relay#jwt)
+encoding/decoding for more details.
 
 ## Mapping Details
 

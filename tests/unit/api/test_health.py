@@ -65,7 +65,7 @@ def test_health_call_success(route, client, hibp_api_request, valid_jwt):
     )
 
     expected_headers = {
-        'user-agent': app.config['HIBP_USER_AGENT'],
+        'user-agent': app.config['CTR_USER_AGENT'],
         'hibp-api-key': (
             jwt.decode(valid_jwt, app.config['SECRET_KEY'])['key']
         ),
@@ -115,7 +115,7 @@ def test_health_call_with_external_error_from_hibp_failure(route,
         )
 
         expected_headers = {
-            'user-agent': app.config['HIBP_USER_AGENT'],
+            'user-agent': app.config['CTR_USER_AGENT'],
             'hibp-api-key': (
                 jwt.decode(valid_jwt, app.config['SECRET_KEY'])['key']
             ),
