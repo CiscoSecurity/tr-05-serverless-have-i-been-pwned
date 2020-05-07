@@ -84,26 +84,40 @@ def test_health_call_with_external_error_from_hibp_failure(route,
                                                            client,
                                                            hibp_api_request,
                                                            valid_jwt):
-    for status_code, error_code, error_message in [
+    for status_code, error_code, error_message, is_authentic in [
         (
             HTTPStatus.UNAUTHORIZED,
             'access denied',
             'Access to HIBP denied due to invalid API key.',
+            False,
+        ),
+        (
+            HTTPStatus.TOO_MANY_REQUESTS,
+            'too many requests',
+            'Rate limit is exceeded. Try again in 3 seconds.',
+            True,
         ),
         (
             HTTPStatus.SERVICE_UNAVAILABLE,
             'service unavailable',
             'Service temporarily unavailable. Please try again later.',
+            False,
         ),
         (
             HTTPStatus.INTERNAL_SERVER_ERROR,
             'oops',
             'Something went wrong.',
+            False,
         ),
     ]:
         app = client.application
 
         hibp_api_request.return_value = hibp_api_response(status_code)
+
+        if is_authentic:
+            hibp_api_request.return_value.json = (
+                lambda: {'message': error_message}
+            )
 
         response = client.post(route, headers=headers(valid_jwt))
 
