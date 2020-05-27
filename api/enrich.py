@@ -4,6 +4,7 @@ from urllib.parse import quote
 
 from flask import Blueprint, current_app
 
+from api.bundle import Bundle
 from api.mappings import Indicator, Sighting, Relationship
 from api.schemas import ObservableSchema
 from api.utils import (
@@ -37,9 +38,7 @@ def observe_observables():
 
     key = get_key()
 
-    indicators = []
-    sightings = []
-    relationships = []
+    bundle = Bundle()
 
     limit = current_app.config['CTR_ENTITIES_LIMIT']
 
@@ -47,7 +46,7 @@ def observe_observables():
         breaches, error = fetch_breaches(key, email)
 
         if error:
-            return jsonify_errors(error)
+            return jsonify_errors(error, data=bundle.json())
 
         breaches.sort(key=itemgetter('BreachDate'), reverse=True)
 
@@ -65,23 +64,11 @@ def observe_observables():
             sighting = Sighting.map(breach, count, email, source_uri)
             relationship = Relationship.map(indicator, sighting)
 
-            indicators.append(indicator)
-            sightings.append(sighting)
-            relationships.append(relationship)
+            bundle.add(indicator)
+            bundle.add(sighting)
+            bundle.add(relationship)
 
-    data = {}
-
-    def format_docs(docs):
-        return {'count': len(docs), 'docs': docs}
-
-    if indicators:
-        data['indicators'] = format_docs(indicators)
-
-    if sightings:
-        data['sightings'] = format_docs(sightings)
-
-    if relationships:
-        data['relationships'] = format_docs(relationships)
+    data = bundle.json()
 
     return jsonify_data(data)
 
