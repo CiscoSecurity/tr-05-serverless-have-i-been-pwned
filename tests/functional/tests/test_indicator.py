@@ -24,7 +24,7 @@ def test_positive_indicator_email(module_headers):
     )['data']
     indicators = get_observables(
         response, 'Have I Been Pwned')['data']['indicators']
-    assert indicators['count'] == 14
+    assert indicators['count'] > 0
     # check some generic properties
     for indicator in indicators['docs']:
         assert indicator['type'] == 'indicator'

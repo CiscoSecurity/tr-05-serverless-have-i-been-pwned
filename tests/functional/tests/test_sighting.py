@@ -24,7 +24,7 @@ def test_positive_sighting_email(module_headers):
     )['data']
     sightings = get_observables(
         response, 'Have I Been Pwned')['data']['sightings']
-    assert sightings['count'] == 14
+    assert sightings['count'] > 0
     # check some generic properties
     for sighting in sightings['docs']:
         assert sighting['type'] == 'sighting'
