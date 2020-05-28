@@ -24,7 +24,7 @@ def test_positive_sighting_email(module_headers):
     )['data']
     sightings = get_observables(
         response, 'Have I Been Pwned')['data']['sightings']
-    assert sightings['count'] > 0
+    assert len(sightings['docs']) > 0
     # check some generic properties
     for sighting in sightings['docs']:
         assert sighting['type'] == 'sighting'
@@ -37,6 +37,7 @@ def test_positive_sighting_email(module_headers):
         )
         assert sighting['targets'][0]['type'] == 'email'
         assert sighting['targets'][0]['observables'] == [payload]
+    assert sightings['count'] == len(sightings['docs'])
     # check properties of one unique sighting
     sighting = [
         d for d in sightings['docs'] if 'Apollo' in d['description']][0]
