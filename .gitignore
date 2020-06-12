@@ -10,3 +10,6 @@ venv/
 
 # dotenv
 .env
+
+# Properties file
+project.properties
