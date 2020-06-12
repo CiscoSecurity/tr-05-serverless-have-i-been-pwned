@@ -18,12 +18,16 @@ def test_positive_indicator_email(module_headers):
     Importance: Critical
     """
     payload = {'type': 'email', 'value': 'fluffy@cisco.com'}
-    response = enrich_observe_observables(
+    response_from_all_modules = enrich_observe_observables(
         payload=[payload],
         **{'headers': module_headers}
     )['data']
-    indicators = get_observables(
-        response, 'Have I Been Pwned')['data']['indicators']
+    response_from_hibp_module = get_observables(
+        response_from_all_modules, 'Have I Been Pwned')
+    assert response_from_hibp_module['module'] == 'Have I Been Pwned'
+    assert response_from_hibp_module['module_instance_id']
+    assert response_from_hibp_module['module_type_id']
+    indicators = response_from_hibp_module['data']['indicators']
     assert len(indicators['docs']) > 0
     # check some generic properties
     for indicator in indicators['docs']:
