@@ -13,3 +13,6 @@ venv/
 
 # Properties file
 project.properties
+
+# Reporting
+artifacts/
