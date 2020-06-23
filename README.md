@@ -273,9 +273,7 @@ header set to `Bearer <JWT>`.
   - Applies to the following CTIM entities:
     - `Indicator`,
     - `Sighting`.
-  - Must be a positive integer. Defaults to `100` (if unset or incorrect). Has
-  the upper bound of `1000` to avoid getting overwhelmed with too much data, so
-  any greater values are still acceptable but also limited at the same time.
+  - Must be a positive integer. Defaults to `100` (if unset or incorrect).
 
 ### CTIM Mapping Specifics
 
