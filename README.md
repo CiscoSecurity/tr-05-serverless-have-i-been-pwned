@@ -277,13 +277,13 @@ header set to `Bearer <JWT>`.
 
 ### CTIM Mapping Specifics
 
-Each HIBP breach for an email generates 3 CTIM entities: an indicator,
-a sighting, and a corresponding relationship between them. The actual mapping
-from HIBP fields to CTIM fields is quite straightforward.
+Each HIBP breach for an email generates 3 CTIM entities: an `Indicator`,
+a `Sighting`, and the corresponding `Relationship` between them. The actual
+mapping from HIBP fields to CTIM fields is quite straightforward.
 
-The only non-obvious piece of that mapping is the logic for inferring the
+The only non-obvious piece of the mapping is the logic for inferring the
 actual values for the `confidence` and `severity` fields. Suppose there is
-a `breach` for some email. If the `breach` is verified (field `IsVerified`,
+a `breach` for an email. If the `breach` is verified (field `IsVerified`,
 type `boolean`), then the value for `confidence` will be `High`, otherwise
 `Medium`. At the same time, each `breach` also knows some information about
 the nature of the data compromised in the `breach` as a string array of
@@ -301,4 +301,4 @@ entity['severity'] = ['Medium', 'High'][
     breach['IsVerified'] and 'Passwords' in breach['DataClasses']
 ]
 ```
-(the `entity` here is either an `indicator` or a `sighting`).
+(the `entity` here is either an `Indicator` or a `Sighting`).
