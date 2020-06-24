@@ -1,0 +1,11 @@
+{
+  "name": "Have I Been Pwned",
+  "jwt": {
+    "key": "Have I Been Pwned API Key"
+  },
+  "region": {
+    "us": "c94a9d1a-e379-42e3-abd0-bbfd8a2b9da0",
+    "eu": "38b3f2eb-cc28-4c5b-b0c5-6af695be1b13",
+    "apjc": "90e86a43-a6af-4c21-bb29-1a1f09976cec"
+  }
+}

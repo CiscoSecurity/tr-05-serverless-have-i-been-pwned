@@ -1,5 +1,5 @@
-import abc
-import uuid
+from abc import ABC, abstractmethod
+from uuid import uuid4
 from typing import Dict, Any
 
 from markdownify import markdownify
@@ -8,17 +8,21 @@ from markdownify import markdownify
 JSON = Dict[str, Any]
 
 
-class Mapping(abc.ABC):
+class Mapping(ABC):
 
     @classmethod
-    @abc.abstractmethod
+    @abstractmethod
     def map(cls, *args, **kwargs) -> JSON:
         pass
 
 
 CTIM_DEFAULTS = {
-    'schema_version': '1.0.16',
+    'schema_version': '1.0.17',
 }
+
+
+def generate_transient_id(entity):
+    return f"transient:{entity['type']}-{uuid4()}"
 
 
 class Indicator(Mapping):
@@ -34,7 +38,7 @@ class Indicator(Mapping):
     def map(cls, breach: JSON) -> JSON:
         indicator: JSON = cls.DEFAULTS.copy()
 
-        indicator['id'] = f'transient:{uuid.uuid4()}'
+        indicator['id'] = generate_transient_id(indicator)
 
         # `BreachDate` itself is just a date with no time (i.e. YYYY-MM-DD),
         # so make sure to add some time to make the date comply with ISO 8601.
@@ -80,7 +84,7 @@ class Sighting(Mapping):
 
         sighting['count'] = count
 
-        sighting['id'] = f'transient:{uuid.uuid4()}'
+        sighting['id'] = generate_transient_id(sighting)
 
         # `BreachDate` itself is just a date with no time (i.e. YYYY-MM-DD),
         # so make sure to add some time to make the date comply with ISO 8601.
@@ -129,7 +133,7 @@ class Relationship(Mapping):
     def map(cls, indicator: JSON, sighting: JSON) -> JSON:
         relationship: JSON = cls.DEFAULTS.copy()
 
-        relationship['id'] = f'transient:{uuid.uuid4()}'
+        relationship['id'] = generate_transient_id(relationship)
 
         relationship['source_ref'] = sighting['id']
 

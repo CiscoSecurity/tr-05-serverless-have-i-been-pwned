@@ -2,5 +2,13 @@
   {
     "type": "email",
     "value": "user@example.com"
+  },
+  {
+    "type": "email",
+    "value": "dummy@gmail.com"
+  },
+  {
+    "type": "email",
+    "value": "fluffy@cisco.com"
   }
 ]
