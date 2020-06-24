@@ -3,7 +3,7 @@
 # Have I Been Pwned Relay
 
 Concrete Relay implementation using
-[Have I Been Pwned](https://haveibeenpwned.com/)
+[Have I Been Pwned](https://haveibeenpwned.com/FAQs)
 as a third-party Cyber Threat Intelligence service provider.
 
 The Relay itself is just a simple application written in Python that can be
