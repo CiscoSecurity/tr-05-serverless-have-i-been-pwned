@@ -79,7 +79,7 @@ def valid_json():
         {
             'type': 'file_name',
             'value': 'danger.exe',
-        }
+        },
     ]
 
 
