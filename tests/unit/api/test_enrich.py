@@ -197,10 +197,23 @@ def expected_payload(any_route, client):
             for id in ['first', 'second', 'third']
         ]
 
-        observed_times = [
-            {'start_time': f'1970-01-0{day}T00:00:00Z'}
+        start_times = [
+            f'1970-01-0{day}T00:00:00Z'
             for day in [1, 2, 3]
         ]
+
+        valid_times = [
+            {'start_time': start_time}
+            for start_time in start_times
+        ]
+
+        observed_times = [
+            {'start_time': start_time}
+            for start_time in start_times
+        ]
+
+        for observed_time in observed_times:
+            observed_time['end_time'] = observed_time['start_time']
 
         source_email = {'type': 'email', 'value': 'dummy@gmail.com'}
 
@@ -242,7 +255,7 @@ def expected_payload(any_route, client):
                         'short_description': titles[2],
                         'tags': ['Email addresses', 'Passwords'],
                         'title': 'ThirdExposure',
-                        'valid_time': observed_times[2],
+                        'valid_time': valid_times[2],
                         **Indicator.DEFAULTS
                     },
                     {
@@ -253,7 +266,7 @@ def expected_payload(any_route, client):
                         'short_description': titles[1],
                         'tags': ['Email addresses'],
                         'title': 'SecondExposure',
-                        'valid_time': observed_times[1],
+                        'valid_time': valid_times[1],
                         **Indicator.DEFAULTS
                     },
                     {
@@ -264,7 +277,7 @@ def expected_payload(any_route, client):
                         'short_description': titles[0],
                         'tags': ['Email addresses'],
                         'title': 'FirstExposure',
-                        'valid_time': observed_times[0],
+                        'valid_time': valid_times[0],
                         **Indicator.DEFAULTS
                     },
                 ],
@@ -350,7 +363,7 @@ def expected_payload(any_route, client):
                         }],
                         **Sighting.DEFAULTS
                     },
-                ]
+                ],
             },
             'relationships': {
                 'count': 3,

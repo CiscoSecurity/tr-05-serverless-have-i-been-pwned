@@ -37,6 +37,9 @@ def test_positive_sighting_email(module_headers):
         )
         assert sighting['targets'][0]['type'] == 'email'
         assert sighting['targets'][0]['observables'] == [payload]
+        assert sighting['observed_time']['start_time'] == (
+            sighting['observed_time']['end_time']
+        )
     assert sightings['count'] == len(sightings['docs'])
     # check properties of one unique sighting
     sighting = [

@@ -91,6 +91,9 @@ class Sighting(Mapping):
         sighting['observed_time'] = {
             'start_time': breach['BreachDate'] + 'T00:00:00Z'
         }
+        sighting['observed_time']['end_time'] = (
+            sighting['observed_time']['start_time']
+        )
 
         sighting['description'] = (
             f'{email} present in {breach["Title"]} breach.'
