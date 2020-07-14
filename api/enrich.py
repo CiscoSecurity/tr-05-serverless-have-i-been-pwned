@@ -50,9 +50,6 @@ def observe_observables():
 
         breaches.sort(key=itemgetter('BreachDate'), reverse=True)
 
-        # Save the total number of found breaches before limiting them.
-        count = len(breaches)
-
         breaches = breaches[:limit]
 
         source_uri = current_app.config['HIBP_UI_URL'].format(
@@ -61,7 +58,7 @@ def observe_observables():
 
         for breach in breaches:
             indicator = Indicator.map(breach)
-            sighting = Sighting.map(breach, count, email, source_uri)
+            sighting = Sighting.map(breach, email, source_uri)
             relationship = Relationship.map(indicator, sighting)
 
             bundle.add(indicator)

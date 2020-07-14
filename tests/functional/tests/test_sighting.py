@@ -28,6 +28,7 @@ def test_positive_sighting_email(module_headers):
     # check some generic properties
     for sighting in sightings['docs']:
         assert sighting['type'] == 'sighting'
+        assert sighting['count'] == 1
         assert sighting['internal'] is False
         assert sighting['title'] == 'Found on Have I Been Pwned'
         assert sighting['observables'] == [payload]

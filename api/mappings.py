@@ -68,6 +68,7 @@ class Indicator(Mapping):
 class Sighting(Mapping):
     DEFAULTS = {
         'type': 'sighting',
+        'count': 1,
         'internal': False,
         'source': 'Have I Been Pwned',
         'title': 'Found on Have I Been Pwned',
@@ -75,14 +76,10 @@ class Sighting(Mapping):
     }
 
     @classmethod
-    def map(
-        cls, breach: JSON, count: int, email: str, source_uri: str
-    ) -> JSON:
+    def map(cls, breach: JSON, email: str, source_uri: str) -> JSON:
         sighting: JSON = cls.DEFAULTS.copy()
 
         sighting['confidence'] = ['Medium', 'High'][breach['IsVerified']]
-
-        sighting['count'] = count
 
         sighting['id'] = generate_transient_id(sighting)
 
