@@ -287,7 +287,6 @@ def expected_payload(any_route, client):
                 'docs': [
                     {
                         'confidence': 'High',
-                        'count': 3,
                         'description': (
                             f'{source_email["value"]} '
                             f'present in {titles[2]} breach.'
@@ -313,7 +312,6 @@ def expected_payload(any_route, client):
                     },
                     {
                         'confidence': 'High',
-                        'count': 3,
                         'description': (
                             f'{source_email["value"]} '
                             f'present in {titles[1]} breach.'
@@ -339,7 +337,6 @@ def expected_payload(any_route, client):
                     },
                     {
                         'confidence': 'Medium',
-                        'count': 3,
                         'description': (
                             f'{source_email["value"]} '
                             f'present in {titles[0]} breach.'
