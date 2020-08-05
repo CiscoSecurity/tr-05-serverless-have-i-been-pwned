@@ -21,7 +21,7 @@ CTIM_DEFAULTS = {
 }
 
 
-def generate_transient_id(entity):
+def transient_id(entity):
     return f"transient:{entity['type']}-{uuid4()}"
 
 
@@ -38,7 +38,7 @@ class Indicator(Mapping):
     def map(cls, breach: JSON) -> JSON:
         indicator: JSON = cls.DEFAULTS.copy()
 
-        indicator['id'] = generate_transient_id(indicator)
+        indicator['id'] = transient_id(indicator)
 
         # `BreachDate` itself is just a date with no time (i.e. YYYY-MM-DD),
         # so make sure to add some time to make the date comply with ISO 8601.
@@ -81,7 +81,7 @@ class Sighting(Mapping):
 
         sighting['confidence'] = ['Medium', 'High'][breach['IsVerified']]
 
-        sighting['id'] = generate_transient_id(sighting)
+        sighting['id'] = transient_id(sighting)
 
         # `BreachDate` itself is just a date with no time (i.e. YYYY-MM-DD),
         # so make sure to add some time to make the date comply with ISO 8601.
@@ -133,7 +133,7 @@ class Relationship(Mapping):
     def map(cls, indicator: JSON, sighting: JSON) -> JSON:
         relationship: JSON = cls.DEFAULTS.copy()
 
-        relationship['id'] = generate_transient_id(relationship)
+        relationship['id'] = transient_id(relationship)
 
         relationship['source_ref'] = sighting['id']
 
