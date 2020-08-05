@@ -17,7 +17,7 @@ def test_positive_sighting_email(module_headers):
 
     Importance: Critical
     """
-    payload = {'type': 'email', 'value': 'fluffy@cisco.com'}
+    payload = {'type': 'email', 'value': 'test@test.com'}
     response = enrich_observe_observables(
         payload=[payload],
         **{'headers': module_headers}
@@ -34,7 +34,7 @@ def test_positive_sighting_email(module_headers):
         assert sighting['observables'] == [payload]
         assert sighting['source'] == 'Have I Been Pwned'
         assert sighting['source_uri'] == (
-            'https://haveibeenpwned.com/account/fluffy%40cisco.com'
+            'https://haveibeenpwned.com/account/test%40test.com'
         )
         assert sighting['targets'][0]['type'] == 'email'
         assert sighting['targets'][0]['observables'] == [payload]
@@ -46,11 +46,11 @@ def test_positive_sighting_email(module_headers):
     sighting = [
         d for d in sightings['docs'] if 'Apollo' in d['description']][0]
     assert sighting['description'] == (
-        'fluffy@cisco.com present in Apollo breach.'
+        'test@test.com present in Apollo breach.'
     )
     relation = {
         'origin': 'Have I Been Pwned',
-        'origin_uri': 'https://haveibeenpwned.com/account/fluffy%40cisco.com',
+        'origin_uri': 'https://haveibeenpwned.com/account/test%40test.com',
         'relation': 'Leaked_From',
         'source': payload,
         'related': {'value': 'apollo.io', 'type': 'domain'}

@@ -17,7 +17,7 @@ def test_positive_indicator_email(module_headers):
 
     Importance: Critical
     """
-    payload = {'type': 'email', 'value': 'fluffy@cisco.com'}
+    payload = {'type': 'email', 'value': 'test@test.com'}
     response_from_all_modules = enrich_observe_observables(
         payload=[payload],
         **{'headers': module_headers}
