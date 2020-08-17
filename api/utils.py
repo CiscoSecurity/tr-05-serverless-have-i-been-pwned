@@ -1,5 +1,6 @@
 import json
 from http import HTTPStatus
+from ssl import SSLCertVerificationError
 from typing import Optional
 from urllib.parse import quote
 
@@ -7,6 +8,7 @@ import requests
 from authlib.jose import jwt
 from authlib.jose.errors import JoseError
 from flask import request, current_app, jsonify
+from requests.exceptions import SSLError
 
 
 def get_jwt():
@@ -54,7 +56,19 @@ def fetch_breaches(key, email, truncate=False):
         'hibp-api-key': key,
     }
 
-    response = requests.get(url, headers=headers)
+    try:
+        response = requests.get(url, headers=headers)
+    except SSLError as error:
+        # Go through a few layers of wrapped exceptions.
+        error = error.args[0].reason.args[0]
+        # Assume that a certificate could not be verified.
+        assert isinstance(error, SSLCertVerificationError)
+        reason = getattr(error, 'verify_message', error.args[0]).capitalize()
+        error = {
+            'code': 'ssl certificate verification failed',
+            'message': f'Unable to verify SSL certificate: {reason}.',
+        }
+        return None, error
 
     if response.status_code == HTTPStatus.BAD_REQUEST:
         return [], None
