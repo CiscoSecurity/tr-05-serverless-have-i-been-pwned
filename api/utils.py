@@ -120,6 +120,9 @@ def jsonify_data(data):
 
 
 def jsonify_errors(error, data=None):
+    # Avoiding of circular imports
+    from app import app
+
     # According to the official documentation, an error here means that the
     # corresponding TR module is in an incorrect state and needs to be
     # reconfigured, or the third-party service is down (for example, the API
@@ -130,5 +133,7 @@ def jsonify_errors(error, data=None):
     payload = {'errors': [error]}
     if data:
         payload['data'] = data
+
+    app.logger.error(payload)
 
     return jsonify(payload)
