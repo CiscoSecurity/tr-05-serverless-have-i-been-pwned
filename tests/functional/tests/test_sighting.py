@@ -36,13 +36,13 @@ def test_positive_sighting_email(module_headers):
         assert sighting['count'] == 1
         assert sighting['internal'] is False
         assert sighting['title'] == f'Found on {MODULE_NAME}'
-        assert sighting['observables'] == [observable]
+        assert sighting['observables'] == observable
         assert sighting['source'] == MODULE_NAME
         assert sighting['source_uri'] == (
             f'{HIBP_URL}/account/test%40test.com'
         )
         assert sighting['targets'][0]['type'] == 'email'
-        assert sighting['targets'][0]['observables'] == [observable]
+        assert sighting['targets'][0]['observables'] == observable
         assert sighting['observed_time']['start_time'] == (
             sighting['observed_time']['end_time']
         )
@@ -57,7 +57,7 @@ def test_positive_sighting_email(module_headers):
         'origin': MODULE_NAME,
         'origin_uri': f'{HIBP_URL}/account/test%40test.com',
         'relation': 'Leaked_From',
-        'source': observable,
+        'source': observable[0],
         'related': {'value': 'apollo.io', 'type': 'domain'}
     }
     assert sighting['relations'][0] == relation
