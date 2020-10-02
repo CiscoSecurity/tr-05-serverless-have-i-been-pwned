@@ -1,5 +1,6 @@
 from ctrlibrary.core.utils import get_observables
 from ctrlibrary.threatresponse.enrich import enrich_observe_observables
+from tests.functional.tests.constants import MODULE_NAME
 
 
 def test_positive_relationship_email(module_headers):
@@ -18,12 +19,12 @@ def test_positive_relationship_email(module_headers):
 
     Importance: Critical
     """
-    payload = {'type': 'email', 'value': 'test@test.com'}
+    observable = [{'type': 'email', 'value': 'test@test.com'}]
     response = enrich_observe_observables(
-        payload=[payload],
+        payload=observable,
         **{'headers': module_headers}
     )['data']
-    module_response = get_observables(response, 'Have I Been Pwned')['data']
+    module_response = get_observables(response, MODULE_NAME)['data']
     # Get one indicator to check for relation
     indicator = [
         d for d

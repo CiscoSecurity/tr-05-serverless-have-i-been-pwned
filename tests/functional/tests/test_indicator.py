@@ -1,5 +1,9 @@
 from ctrlibrary.core.utils import get_observables
 from ctrlibrary.threatresponse.enrich import enrich_observe_observables
+from tests.functional.tests.constants import (
+    MODULE_NAME,
+    CTR_ENTITIES_LIMIT
+)
 
 
 def test_positive_indicator_email(module_headers):
@@ -17,23 +21,25 @@ def test_positive_indicator_email(module_headers):
 
     Importance: Critical
     """
-    payload = {'type': 'email', 'value': 'test@test.com'}
+    observable = [{'type': 'email', 'value': 'test@test.com'}]
     response_from_all_modules = enrich_observe_observables(
-        payload=[payload],
+        payload=observable,
         **{'headers': module_headers}
     )['data']
     response_from_hibp_module = get_observables(
-        response_from_all_modules, 'Have I Been Pwned')
-    assert response_from_hibp_module['module'] == 'Have I Been Pwned'
+        response_from_all_modules, MODULE_NAME)
+
+    assert response_from_hibp_module['module'] == MODULE_NAME
     assert response_from_hibp_module['module_instance_id']
     assert response_from_hibp_module['module_type_id']
+
     indicators = response_from_hibp_module['data']['indicators']
     assert len(indicators['docs']) > 0
     # check some generic properties
     for indicator in indicators['docs']:
         assert indicator['type'] == 'indicator'
-        assert indicator['producer'] == 'Have I Been Pwned'
-        assert indicator['source'] == 'Have I Been Pwned Breaches'
+        assert indicator['producer'] == MODULE_NAME
+        assert indicator['source'] == f'{MODULE_NAME} Breaches'
         assert indicator['tlp'] == 'white'
         if (
             indicator['confidence'] == 'High'
@@ -42,7 +48,7 @@ def test_positive_indicator_email(module_headers):
             assert indicator['severity'] == 'High'
         else:
             assert indicator['severity'] == 'Medium'
-    assert indicators['count'] == len(indicators['docs'])
+    assert indicators['count'] == len(indicators['docs']) <= CTR_ENTITIES_LIMIT
     # check properties of one unique indicator
     indicator = [d for d in indicators['docs'] if d['title'] == 'PDL'][0]
     assert indicator[

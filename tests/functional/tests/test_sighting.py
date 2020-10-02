@@ -1,5 +1,10 @@
 from ctrlibrary.core.utils import get_observables
 from ctrlibrary.threatresponse.enrich import enrich_observe_observables
+from tests.functional.tests.constants import (
+    MODULE_NAME,
+    HIBP_URL,
+    CTR_ENTITIES_LIMIT
+)
 
 
 def test_positive_sighting_email(module_headers):
@@ -17,9 +22,9 @@ def test_positive_sighting_email(module_headers):
 
     Importance: Critical
     """
-    payload = {'type': 'email', 'value': 'test@test.com'}
+    observable = [{'type': 'email', 'value': 'test@test.com'}]
     response = enrich_observe_observables(
-        payload=[payload],
+        payload=observable,
         **{'headers': module_headers}
     )['data']
     sightings = get_observables(
@@ -30,29 +35,29 @@ def test_positive_sighting_email(module_headers):
         assert sighting['type'] == 'sighting'
         assert sighting['count'] == 1
         assert sighting['internal'] is False
-        assert sighting['title'] == 'Found on Have I Been Pwned'
-        assert sighting['observables'] == [payload]
-        assert sighting['source'] == 'Have I Been Pwned'
+        assert sighting['title'] == f'Found on {MODULE_NAME}'
+        assert sighting['observables'] == observable
+        assert sighting['source'] == MODULE_NAME
         assert sighting['source_uri'] == (
-            'https://haveibeenpwned.com/account/test%40test.com'
+            f'{HIBP_URL}/account/test%40test.com'
         )
         assert sighting['targets'][0]['type'] == 'email'
-        assert sighting['targets'][0]['observables'] == [payload]
+        assert sighting['targets'][0]['observables'] == observable
         assert sighting['observed_time']['start_time'] == (
             sighting['observed_time']['end_time']
         )
-    assert sightings['count'] == len(sightings['docs'])
+    assert sightings['count'] == len(sightings['docs']) <= CTR_ENTITIES_LIMIT
     # check properties of one unique sighting
     sighting = [
         d for d in sightings['docs'] if 'Apollo' in d['description']][0]
     assert sighting['description'] == (
-        'test@test.com present in Apollo breach.'
+        f'{observable[0]["value"]} present in Apollo breach.'
     )
     relation = {
-        'origin': 'Have I Been Pwned',
-        'origin_uri': 'https://haveibeenpwned.com/account/test%40test.com',
+        'origin': MODULE_NAME,
+        'origin_uri': f'{HIBP_URL}/account/test%40test.com',
         'relation': 'Leaked_From',
-        'source': payload,
+        'source': observable[0],
         'related': {'value': 'apollo.io', 'type': 'domain'}
     }
     assert sighting['relations'][0] == relation
