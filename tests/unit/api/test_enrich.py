@@ -94,8 +94,9 @@ def test_enrich_call_with_valid_json_but_invalid_jwt_failure(hibp_api_route,
     expected_payload = {
         'errors': [
             {
-                'code': 'access denied',
-                'message': 'Access to HIBP denied due to invalid API key.',
+                'code': 'authorization failed',
+                'message': 'Authorization failed: Failed to decode JWT with '
+                           'provided key',
                 'type': 'fatal',
             }
         ]
@@ -172,6 +173,10 @@ def hibp_api_response(status_code):
         payload_list_iter = iter(payload_list)
 
         mock_response.json = lambda: next(payload_list_iter)
+    elif status_code == HTTPStatus.UNAUTHORIZED:
+        mock_response.json = lambda: {
+            "message": "Unauthorized error from 3rd party"
+        }
 
     return mock_response
 
@@ -483,7 +488,7 @@ def test_enrich_call_with_external_error_from_hibp_failure(hibp_api_route,
         (
             HTTPStatus.UNAUTHORIZED,
             'access denied',
-            'Access to HIBP denied due to invalid API key.',
+            'Authorization failed: Unauthorized error from 3rd party',
             False,
         ),
         (
