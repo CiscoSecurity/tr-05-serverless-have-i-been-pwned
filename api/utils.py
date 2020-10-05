@@ -6,22 +6,39 @@ from urllib.parse import quote
 
 import requests
 from authlib.jose import jwt
-from authlib.jose.errors import JoseError
+from authlib.jose.errors import BadSignatureError, DecodeError
 from flask import request, current_app, jsonify
 from requests.exceptions import SSLError
 
+from api.errors import AuthenticationRequiredError
 
-def get_jwt():
+
+def get_auth_token():
+    expected_errors = {
+        KeyError: 'Authorization header is missing',
+        AssertionError: 'Wrong authorization type'
+    }
+
     try:
         scheme, token = request.headers['Authorization'].split()
         assert scheme.lower() == 'bearer'
-        return jwt.decode(token, current_app.config['SECRET_KEY'])
-    except (KeyError, ValueError, AssertionError, JoseError):
-        return {}
+        return token
+    except tuple(expected_errors) as error:
+        raise AuthenticationRequiredError(expected_errors[error.__class__])
 
 
 def get_key() -> Optional[str]:
-    return get_jwt().get('key')  # HIBP_API_KEY
+    expected_errors = {
+        KeyError: 'Wrong JWT payload structure',
+        TypeError: '<SECRET_KEY> is missing',
+        BadSignatureError: 'Failed to decode JWT with provided key',
+        DecodeError: 'Wrong JWT structure'
+    }
+    token = get_auth_token()
+    try:
+        return jwt.decode(token, current_app.config['SECRET_KEY'])["key"]
+    except tuple(expected_errors) as error:
+        raise AuthenticationRequiredError(expected_errors[error.__class__])
 
 
 def get_json(schema):
@@ -74,9 +91,10 @@ def fetch_breaches(key, email, truncate=False):
         return [], None
 
     if response.status_code == HTTPStatus.UNAUTHORIZED:
+        message = response.json().get("message")
         error = {
             'code': 'access denied',
-            'message': 'Access to HIBP denied due to invalid API key.',
+            'message': f'Authorization failed: {message}'
         }
         return None, error
 
