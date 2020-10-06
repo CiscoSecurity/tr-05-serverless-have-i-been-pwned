@@ -6,7 +6,7 @@ from version import VERSION
 class Config:
     VERSION = VERSION
 
-    SECRET_KEY = os.environ.get('SECRET_KEY', '')
+    SECRET_KEY = os.environ.get('SECRET_KEY', None)
 
     # HIBP returns 403 Forbidden "API request must include a user agent"
     # when using angle brackets, only round brackets are acceptable...

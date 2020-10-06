@@ -23,8 +23,9 @@ def test_health_call_with_invalid_jwt_failure(route, client, invalid_jwt):
     expected_payload = {
         'errors': [
             {
-                'code': 'access denied',
-                'message': 'Access to HIBP denied due to invalid API key.',
+                'code': 'authorization failed',
+                'message': 'Authorization failed: Failed to decode JWT with '
+                           'provided key',
                 'type': 'fatal',
             }
         ]
@@ -44,6 +45,10 @@ def hibp_api_response(status_code):
     mock_response = mock.MagicMock()
 
     mock_response.status_code = status_code
+    if status_code == HTTPStatus.UNAUTHORIZED:
+        mock_response.json = lambda: {
+            "message": "Unauthorized error from 3rd party"
+        }
 
     return mock_response
 
@@ -86,7 +91,7 @@ def test_health_call_with_external_error_from_hibp_failure(route,
         (
             HTTPStatus.UNAUTHORIZED,
             'access denied',
-            'Access to HIBP denied due to invalid API key.',
+            'Authorization failed: Unauthorized error from 3rd party',
             False,
         ),
         (
