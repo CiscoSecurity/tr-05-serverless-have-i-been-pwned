@@ -1,5 +1,7 @@
 import os
 
+from uuid import NAMESPACE_X500
+
 from version import VERSION
 
 
@@ -24,6 +26,8 @@ class Config:
         CTR_ENTITIES_LIMIT = CTR_ENTITIES_LIMIT_DEFAULT
 
     HIBP_TEST_EMAIL = 'user@example.com'
+
+    NAMESPACE_BASE = NAMESPACE_X500
 
     HIBP_API_URL = (
         'https://haveibeenpwned.com/api/v3/breachedaccount/{email}'

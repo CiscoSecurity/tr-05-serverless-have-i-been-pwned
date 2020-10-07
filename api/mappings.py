@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from uuid import uuid4
+from uuid import uuid4, uuid5
 from typing import Dict, Any
 
+from flask import current_app
 from markdownify import markdownify
 
 
@@ -21,8 +22,10 @@ CTIM_DEFAULTS = {
 }
 
 
-def transient_id(entity):
-    return f"transient:{entity['type']}-{uuid4()}"
+def transient_id(entity, base_value=None):
+    uuid = (uuid5(current_app.config['NAMESPACE_BASE'], base_value)
+            if base_value else uuid4())
+    return f'transient:{entity["type"]}-{uuid}'
 
 
 class Indicator(Mapping):
@@ -38,7 +41,7 @@ class Indicator(Mapping):
     def map(cls, breach: JSON) -> JSON:
         indicator: JSON = cls.DEFAULTS.copy()
 
-        indicator['id'] = transient_id(indicator)
+        indicator['id'] = transient_id(indicator, breach["Name"])
 
         # `BreachDate` itself is just a date with no time (i.e. YYYY-MM-DD),
         # so make sure to add some time to make the date comply with ISO 8601.
