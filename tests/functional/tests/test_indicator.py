@@ -25,7 +25,7 @@ def test_positive_indicator_email(module_headers):
     response_from_all_modules = enrich_observe_observables(
         payload=observable,
         **{'headers': module_headers}
-    )['data']
+    )
     response_from_hibp_module = get_observables(
         response_from_all_modules, MODULE_NAME)
 

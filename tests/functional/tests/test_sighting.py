@@ -26,7 +26,7 @@ def test_positive_sighting_email(module_headers):
     response = enrich_observe_observables(
         payload=observable,
         **{'headers': module_headers}
-    )['data']
+    )
     sightings = get_observables(
         response, 'Have I Been Pwned')['data']['sightings']
     assert len(sightings['docs']) > 0

@@ -23,7 +23,7 @@ def test_positive_relationship_email(module_headers):
     response = enrich_observe_observables(
         payload=observable,
         **{'headers': module_headers}
-    )['data']
+    )
     module_response = get_observables(response, MODULE_NAME)['data']
     # Get one indicator to check for relation
     indicator = [
