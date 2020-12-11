@@ -13,7 +13,7 @@ class Config:
     # HIBP returns 403 Forbidden "API request must include a user agent"
     # when using angle brackets, only round brackets are acceptable...
     CTR_USER_AGENT = (
-        'Cisco Threat Response Integrations '
+        'SecureX Threat Response Integrations '
         '(tr-integrations-support@cisco.com)'
     )
 
