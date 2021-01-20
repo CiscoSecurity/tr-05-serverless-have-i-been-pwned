@@ -1,11 +1,13 @@
 from http import HTTPStatus
 from unittest import mock
+from unittest.mock import call
 from urllib.parse import quote
 
-from authlib.jose import jwt
 from pytest import fixture
 
 from api.mappings import Indicator, Sighting, Relationship
+from api import enrich
+from tests.unit.api.mock_for_tests import EXPECTED_RESPONSE_OF_JWKS_ENDPOINT
 from .utils import headers
 
 
@@ -57,55 +59,6 @@ def hibp_api_route(request):
     return request.param
 
 
-@fixture(scope='module')
-def valid_json():
-    return [
-        {
-            'type': 'email',
-            'value': 'dummy@cisco.com',
-        },
-        {
-            'type': 'email',
-            'value': 'dummy@gmail.com',
-        },
-        {
-            'type': 'ip',
-            'value': '8.8.8.8',
-        },
-        {
-            'type': 'sha256',
-            'value': '01' * 32,
-        },
-        {
-            'type': 'file_name',
-            'value': 'danger.exe',
-        },
-    ]
-
-
-def test_enrich_call_with_valid_json_but_invalid_jwt_failure(hibp_api_route,
-                                                             client,
-                                                             valid_json,
-                                                             invalid_jwt):
-    response = client.post(hibp_api_route,
-                           json=valid_json,
-                           headers=headers(invalid_jwt))
-
-    expected_payload = {
-        'errors': [
-            {
-                'code': 'authorization failed',
-                'message': 'Authorization failed: Failed to decode JWT with '
-                           'provided key',
-                'type': 'fatal',
-            }
-        ]
-    }
-
-    assert response.status_code == HTTPStatus.OK
-    assert response.get_json() == expected_payload
-
-
 def all_routes():
     yield '/deliberate/observables'
     yield '/observe/observables'
@@ -117,12 +70,6 @@ def all_routes():
          ids=lambda route: f'POST {route}')
 def any_route(request):
     return request.param
-
-
-@fixture(scope='function')
-def hibp_api_request():
-    with mock.patch('requests.get') as mock_request:
-        yield mock_request
 
 
 def hibp_api_response(status_code):
@@ -138,6 +85,7 @@ def hibp_api_response(status_code):
         )
 
         payload_list = [
+            EXPECTED_RESPONSE_OF_JWKS_ENDPOINT,
             [],
             [
                 {
@@ -168,6 +116,7 @@ def hibp_api_response(status_code):
                     'IsVerified': True,
                 },
             ],
+            EXPECTED_RESPONSE_OF_JWKS_ENDPOINT
         ]
 
         payload_list_iter = iter(payload_list)
@@ -176,6 +125,10 @@ def hibp_api_response(status_code):
     elif status_code == HTTPStatus.UNAUTHORIZED:
         mock_response.json = lambda: {
             "message": "Unauthorized error from 3rd party"
+        }
+    elif status_code == HTTPStatus.TOO_MANY_REQUESTS:
+        mock_response.json = lambda: {
+            'message': 'Rate limit is exceeded. Try again in 3 seconds.'
         }
 
     return mock_response
@@ -442,7 +395,7 @@ def test_enrich_call_success(any_route,
 
         response = client.post(any_route,
                                json=valid_json,
-                               headers=headers(valid_jwt))
+                               headers=headers(valid_jwt()))
 
         emails = [
             observable['value']
@@ -460,9 +413,7 @@ def test_enrich_call_success(any_route,
 
         expected_headers = {
             'user-agent': app.config['CTR_USER_AGENT'],
-            'hibp-api-key': (
-                jwt.decode(valid_jwt, app.config['SECRET_KEY'])['key']
-            ),
+            'hibp-api-key': enrich.get_key()
         }
 
         hibp_api_request.assert_has_calls([
@@ -483,45 +434,45 @@ def test_enrich_call_with_external_error_from_hibp_failure(hibp_api_route,
                                                            client,
                                                            valid_json,
                                                            hibp_api_request,
+                                                           rsa_api_response,
                                                            valid_jwt):
     for status_code, error_code, error_message, is_authentic in [
         (
-            HTTPStatus.UNAUTHORIZED,
-            'access denied',
-            'Authorization failed: Unauthorized error from 3rd party',
-            False,
+                HTTPStatus.UNAUTHORIZED,
+                'access denied',
+                'Authorization failed: Unauthorized error from 3rd party',
+                False,
         ),
         (
-            HTTPStatus.TOO_MANY_REQUESTS,
-            'too many requests',
-            'Rate limit is exceeded. Try again in 3 seconds.',
-            True,
+                HTTPStatus.TOO_MANY_REQUESTS,
+                'too many requests',
+                'Rate limit is exceeded. Try again in 3 seconds.',
+                True,
         ),
         (
-            HTTPStatus.SERVICE_UNAVAILABLE,
-            'service unavailable',
-            'Service temporarily unavailable. Please try again later.',
-            False,
+                HTTPStatus.SERVICE_UNAVAILABLE,
+                'service unavailable',
+                'Service temporarily unavailable. Please try again later.',
+                False,
         ),
         (
-            HTTPStatus.INTERNAL_SERVER_ERROR,
-            'oops',
-            'Something went wrong.',
-            False,
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                'oops',
+                'Something went wrong.',
+                False,
         ),
     ]:
         app = client.application
 
-        hibp_api_request.return_value = hibp_api_response(status_code)
-
-        if is_authentic:
-            hibp_api_request.return_value.json = (
-                lambda: {'message': error_message}
-            )
+        hibp_api_request.side_effect = (
+            rsa_api_response(EXPECTED_RESPONSE_OF_JWKS_ENDPOINT),
+            hibp_api_response(status_code),
+            rsa_api_response(EXPECTED_RESPONSE_OF_JWKS_ENDPOINT)
+        )
 
         response = client.post(hibp_api_route,
                                json=valid_json,
-                               headers=headers(valid_jwt))
+                               headers=headers(valid_jwt()))
 
         email = next(
             observable['value']
@@ -536,13 +487,14 @@ def test_enrich_call_with_external_error_from_hibp_failure(hibp_api_route,
 
         expected_headers = {
             'user-agent': app.config['CTR_USER_AGENT'],
-            'hibp-api-key': (
-                jwt.decode(valid_jwt, app.config['SECRET_KEY'])['key']
-            ),
+            'hibp-api-key': enrich.get_key()
         }
 
-        hibp_api_request.assert_called_once_with(expected_url,
-                                                 headers=expected_headers)
+        calls = [call('https://visibility.amp.cisco.com/.well-known/jwks'),
+                 call(expected_url, headers=expected_headers),
+                 call('https://visibility.amp.cisco.com/.well-known/jwks')]
+
+        hibp_api_request.assert_has_calls(calls)
 
         hibp_api_request.reset_mock()
 

@@ -1,11 +1,13 @@
 from http import HTTPStatus
 from unittest import mock
+from unittest.mock import call
 from urllib.parse import quote
 
-from authlib.jose import jwt
 from pytest import fixture
 
 from .utils import headers
+from api.utils import get_key
+from tests.unit.api.mock_for_tests import EXPECTED_RESPONSE_OF_JWKS_ENDPOINT
 
 
 def routes():
@@ -15,24 +17,6 @@ def routes():
 @fixture(scope='module', params=routes(), ids=lambda route: f'POST {route}')
 def route(request):
     return request.param
-
-
-def test_health_call_with_invalid_jwt_failure(route, client, invalid_jwt):
-    response = client.post(route, headers=headers(invalid_jwt))
-
-    expected_payload = {
-        'errors': [
-            {
-                'code': 'authorization failed',
-                'message': 'Authorization failed: Failed to decode JWT with '
-                           'provided key',
-                'type': 'fatal',
-            }
-        ]
-    }
-
-    assert response.status_code == HTTPStatus.OK
-    assert response.get_json() == expected_payload
 
 
 @fixture(scope='function')
@@ -45,20 +29,31 @@ def hibp_api_response(status_code):
     mock_response = mock.MagicMock()
 
     mock_response.status_code = status_code
+
     if status_code == HTTPStatus.UNAUTHORIZED:
         mock_response.json = lambda: {
             "message": "Unauthorized error from 3rd party"
+        }
+    elif status_code == HTTPStatus.TOO_MANY_REQUESTS:
+        mock_response.json = lambda: {
+            'message': 'Rate limit is exceeded. Try again in 3 seconds.'
         }
 
     return mock_response
 
 
-def test_health_call_success(route, client, hibp_api_request, valid_jwt):
+def test_health_call_success(
+        route, client, hibp_api_request, rsa_api_response, valid_jwt
+):
     app = client.application
 
-    hibp_api_request.return_value = hibp_api_response(HTTPStatus.OK)
+    hibp_api_request.side_effect = (
+        rsa_api_response(EXPECTED_RESPONSE_OF_JWKS_ENDPOINT),
+        hibp_api_response(HTTPStatus.OK),
+        rsa_api_response(EXPECTED_RESPONSE_OF_JWKS_ENDPOINT)
+    )
 
-    response = client.post(route, headers=headers(valid_jwt))
+    response = client.post(route, headers=headers(valid_jwt()))
 
     email = app.config['HIBP_TEST_EMAIL']
 
@@ -69,13 +64,14 @@ def test_health_call_success(route, client, hibp_api_request, valid_jwt):
 
     expected_headers = {
         'user-agent': app.config['CTR_USER_AGENT'],
-        'hibp-api-key': (
-            jwt.decode(valid_jwt, app.config['SECRET_KEY'])['key']
-        ),
+        'hibp-api-key': get_key()
     }
 
-    hibp_api_request.assert_called_once_with(expected_url,
-                                             headers=expected_headers)
+    calls = [call('https://visibility.amp.cisco.com/.well-known/jwks'),
+             call(expected_url, headers=expected_headers),
+             call('https://visibility.amp.cisco.com/.well-known/jwks')]
+
+    hibp_api_request.assert_has_calls(calls)
 
     expected_payload = {'data': {'status': 'ok'}}
 
@@ -86,43 +82,43 @@ def test_health_call_success(route, client, hibp_api_request, valid_jwt):
 def test_health_call_with_external_error_from_hibp_failure(route,
                                                            client,
                                                            hibp_api_request,
+                                                           rsa_api_response,
                                                            valid_jwt):
     for status_code, error_code, error_message, is_authentic in [
         (
-            HTTPStatus.UNAUTHORIZED,
-            'access denied',
-            'Authorization failed: Unauthorized error from 3rd party',
-            False,
+                HTTPStatus.UNAUTHORIZED,
+                'access denied',
+                'Authorization failed: Unauthorized error from 3rd party',
+                False,
         ),
         (
-            HTTPStatus.TOO_MANY_REQUESTS,
-            'too many requests',
-            'Rate limit is exceeded. Try again in 3 seconds.',
-            True,
+                HTTPStatus.TOO_MANY_REQUESTS,
+                'too many requests',
+                'Rate limit is exceeded. Try again in 3 seconds.',
+                True,
         ),
         (
-            HTTPStatus.SERVICE_UNAVAILABLE,
-            'service unavailable',
-            'Service temporarily unavailable. Please try again later.',
-            False,
+                HTTPStatus.SERVICE_UNAVAILABLE,
+                'service unavailable',
+                'Service temporarily unavailable. Please try again later.',
+                False,
         ),
         (
-            HTTPStatus.INTERNAL_SERVER_ERROR,
-            'oops',
-            'Something went wrong.',
-            False,
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+                'oops',
+                'Something went wrong.',
+                False,
         ),
     ]:
         app = client.application
 
-        hibp_api_request.return_value = hibp_api_response(status_code)
+        hibp_api_request.side_effect = (
+            rsa_api_response(EXPECTED_RESPONSE_OF_JWKS_ENDPOINT),
+            hibp_api_response(status_code),
+            rsa_api_response(EXPECTED_RESPONSE_OF_JWKS_ENDPOINT)
+        )
 
-        if is_authentic:
-            hibp_api_request.return_value.json = (
-                lambda: {'message': error_message}
-            )
-
-        response = client.post(route, headers=headers(valid_jwt))
+        response = client.post(route, headers=headers(valid_jwt()))
 
         email = app.config['HIBP_TEST_EMAIL']
 
@@ -133,13 +129,14 @@ def test_health_call_with_external_error_from_hibp_failure(route,
 
         expected_headers = {
             'user-agent': app.config['CTR_USER_AGENT'],
-            'hibp-api-key': (
-                jwt.decode(valid_jwt, app.config['SECRET_KEY'])['key']
-            ),
+            'hibp-api-key': get_key()
         }
 
-        hibp_api_request.assert_called_once_with(expected_url,
-                                                 headers=expected_headers)
+        calls = [call('https://visibility.amp.cisco.com/.well-known/jwks'),
+                 call(expected_url, headers=expected_headers),
+                 call('https://visibility.amp.cisco.com/.well-known/jwks')]
+
+        hibp_api_request.assert_has_calls(calls)
 
         hibp_api_request.reset_mock()
 
