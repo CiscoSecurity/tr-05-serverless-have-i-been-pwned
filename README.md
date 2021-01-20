@@ -130,8 +130,8 @@ old `URL` forever.
 ### SecureX Threat Response Module
 
 Now, the only thing left to do is to follow one of these URLs to navigate 
-to SecureX Threat Response page in your region and create the Pulsedive
-module using your Lambda's URL and Pulsedive API key:
+to SecureX Threat Response page in your region and create the Have I Been Pwned
+module using your Lambda's URL and Have I Been Pwned API key:
 - US: https://securex.us.security.cisco.com/integrations/available/c94a9d1a-e379-42e3-abd0-bbfd8a2b9da0/new
 - EU: https://securex.eu.security.cisco.com/integrations/available/38b3f2eb-cc28-4c5b-b0c5-6af695be1b13/new
 - APJC: https://securex.apjc.security.cisco.com/integrations/available/90e86a43-a6af-4c21-bb29-1a1f09976cec/new  
