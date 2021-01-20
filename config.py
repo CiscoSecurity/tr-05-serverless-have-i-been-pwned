@@ -1,5 +1,3 @@
-import os
-
 from uuid import NAMESPACE_X500
 
 from __version__ import VERSION
@@ -7,8 +5,6 @@ from __version__ import VERSION
 
 class Config:
     VERSION = VERSION
-
-    SECRET_KEY = os.environ.get('SECRET_KEY', None)
 
     # HIBP returns 403 Forbidden "API request must include a user agent"
     # when using angle brackets, only round brackets are acceptable...
@@ -18,12 +14,6 @@ class Config:
     )
 
     CTR_ENTITIES_LIMIT_DEFAULT = 100
-
-    try:
-        CTR_ENTITIES_LIMIT = int(os.environ['CTR_ENTITIES_LIMIT'])
-        assert CTR_ENTITIES_LIMIT > 0
-    except (KeyError, ValueError, AssertionError):
-        CTR_ENTITIES_LIMIT = CTR_ENTITIES_LIMIT_DEFAULT
 
     HIBP_TEST_EMAIL = 'user@example.com'
 
