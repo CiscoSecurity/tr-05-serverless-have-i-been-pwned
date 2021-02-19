@@ -31,7 +31,7 @@ def set_ctr_entities_limit(payload):
         ctr_entities_limit = int(payload['CTR_ENTITIES_LIMIT'])
         assert ctr_entities_limit > 0
     except (KeyError, ValueError, AssertionError):
-        ctr_entities_limit = current_app.config['CTR_DEFAULT_ENTITIES_LIMIT']
+        ctr_entities_limit = current_app.config['CTR_ENTITIES_LIMIT_DEFAULT']
     current_app.config['CTR_ENTITIES_LIMIT'] = ctr_entities_limit
 
 
