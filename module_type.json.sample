@@ -1,0 +1,63 @@
+{
+  "title": "Have I Been Pwned",
+  "default_name": "Have I Been Pwned",
+  "short_description": "Have I Been Pwned allows you to search across multiple data breaches to see if your email address has been compromised.",
+  "description": "**Who is behind Have I Been Pwned (HIBP)**\n\nCreated by Troy Hunt, as a free resource for anyone to quickly assess if they may have been put at risk due to an online account of theirs having been compromised or \"pwned\" in a data breach. He wanted to keep it dead simple to use and entirely free so that it could be of maximum benefit to the community.\n\n**What is HIBP all about?**\n\nThis site came about after what was, at the time, the largest ever single breach of customer accounts — Adobe. Troy often did post-breach analysis of user credentials and kept finding the same accounts exposed over and over again, often with the same passwords which then put the victims at further risk of their other accounts being compromised.\n\nThe [FAQs page](https://haveibeenpwned.com/FAQs) goes into a lot more detail, but all the data on this site comes from \"breaches\" where data is exposed to persons that should not have been able to view it.",
+  "tips": "When configuring this integration, you must first gather some information from your Have I Been account. \n\n1. Browse to https://haveibeenpwned.com/API/Key, enter your **Email Address** and click  **verify email address**.\n2. In the email from `Have I Been Pwned <noreply@haveibeenpwned.com>` click **Verify my email**.\n3. On the **API key** page, enter your **your name or company name** choose either **Recurring $3.50 monthly** or **One month only for $3.50** enter your **Card number** and click **submit payment**.\n4. Copy the **API key** into a file or leave the tab open. \n5. Complete the **Have I Been Pwned Module** form:\n    * **Module Name** - Leave the default name or enter a name that is meaningful to you.\n    * **URL** - Enter the URL for the deployed Serverless Relay.\n    * **API Key* - Enter the API Key from your Have I Been Pwned account information.\n6. Click **Save** to complete the Have I Been Pwned module configuration.",
+  "external_references": [
+    {
+      "label": "Sign Up",
+      "link": "https://haveibeenpwned.com/API/Key"
+    },
+    {
+      "label": "FAQs",
+      "link": "https://haveibeenpwned.com/FAQs"
+    },
+    {
+      "label": "Donate",
+      "link": "https://haveibeenpwned.com/Donate"
+    }
+  ],
+  "configuration_spec": [
+    {
+      "key": "custom_key",
+      "type": "api_key",
+      "label": "API KEY",
+      "tooltip": "The Have I Been Pwned API Key",
+      "required": true
+    },
+    {
+      "key": "custom_CTR_ENTITIES_LIMIT",
+      "type": "integer",
+      "label": "Entities Limit",
+      "tooltip": "Restricts the maximum number of `Indicators` and `Sightings`",
+      "required": false
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "health",
+      "description": "Perform a test query against Have I Been Pwned API."
+    },
+    {
+      "id": "observe",
+      "description": "Query Have I Been Pwned for an Email Address and return Sighting and Indicator for breaches the Email Address is found in."
+    },
+    {
+      "id": "refer",
+      "description": "Pivot on an Email Address to Have I Been Pwned."
+    }
+  ],
+  "properties": {
+    "url": "URLGOESHERE",
+    "supported-apis": [
+      "health",
+      "observe/observables",
+      "refer/observables"
+    ],
+    "auth-type": "configuration-token",
+    "configuration-token-alg": "RS256",
+    "custom_jwks_host": "visibility.amp.cisco.com"
+  },
+  "logo": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxNi4wLjMsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB3aWR0aD0iMTAwcHgiIGhlaWdodD0iMTAwcHgiIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBlbmFibGUtYmFja2dyb3VuZD0ibmV3IDAgMCAxMDAgMTAwIiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxnPg0KCTxkZWZzPg0KCQk8cGF0aCBpZD0iU1ZHSURfMV8iIGQ9Ik0yNy41MjMsMEMxMi4zMjIsMCwwLDEyLjMyMiwwLDI3LjUyM3Y0NC45NTVDMCw4Ny42NzgsMTIuMzIyLDEwMCwyNy41MjMsMTAwaDQ0Ljk1NQ0KCQkJQzg3LjY3OCwxMDAsMTAwLDg3LjY3OCwxMDAsNzIuNDc4VjI3LjUyM0MxMDAsMTIuMzIyLDg3LjY3OCwwLDcyLjQ3OCwwSDI3LjUyM3oiLz4NCgk8L2RlZnM+DQoJPGNsaXBQYXRoIGlkPSJTVkdJRF8yXyI+DQoJCTx1c2UgeGxpbms6aHJlZj0iI1NWR0lEXzFfIiAgb3ZlcmZsb3c9InZpc2libGUiLz4NCgk8L2NsaXBQYXRoPg0KCQ0KCQk8bGluZWFyR3JhZGllbnQgaWQ9IlNWR0lEXzNfIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9Ii0yOTYuNzcxIiB5MT0iNDMzLjY1NjMiIHgyPSItMjk1Ljg1MzUiIHkyPSI0MzMuNjU2MyIgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCgxMDkgMCAwIC0xMDkgMzIzNDggNDczMTguNSkiPg0KCQk8c3RvcCAgb2Zmc2V0PSIwIiBzdHlsZT0ic3RvcC1jb2xvcjojMjY1RTdGIi8+DQoJCTxzdG9wICBvZmZzZXQ9IjEiIHN0eWxlPSJzdG9wLWNvbG9yOiMzNzhCQUIiLz4NCgk8L2xpbmVhckdyYWRpZW50Pg0KCTxyZWN0IGNsaXAtcGF0aD0idXJsKCNTVkdJRF8yXykiIGZpbGw9InVybCgjU1ZHSURfM18pIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIvPg0KPC9nPg0KPGc+DQoJPHBhdGggZmlsbD0iI0ZGRkZGRiIgZD0iTTI1LjM5NywzMy42MTd2NC4wOWMwLDAuNTgtMC4wNjQsMS4wNDItMC4xOTMsMS4zODVjLTAuMTI5LDAuMzQzLTAuMzIyLDAuNjA2LTAuNTgsMC43ODkNCgkJYy0wLjI1NywwLjE4Mi0wLjU4LDAuMzA2LTAuOTY2LDAuMzdjLTAuMzg2LDAuMDY0LTAuODQ4LDAuMDk3LTEuMzg0LDAuMDk3Yy0wLjUzNywwLTAuOTk5LTAuMDMyLTEuMzg1LTAuMDk3DQoJCXMtMC43MDMtMC4xODgtMC45NS0wLjM3Yy0wLjI0Ny0wLjE4My0wLjQzLTAuNDQ2LTAuNTQ3LTAuNzg5Yy0wLjExOC0wLjM0My0wLjE3Ny0wLjgwNi0wLjE3Ny0xLjM4NQ0KCQljMC0wLjY0NCwwLjAzMi0xLjI0NiwwLjA5Ny0xLjgwNHMwLjE3MS0xLjA4NCwwLjMyMi0xLjU3OGMwLjE1LTAuNDk0LDAuMzQ5LTAuOTg4LDAuNTk2LTEuNDgyDQoJCWMwLjI0Ny0wLjQ5NCwwLjU1My0wLjk5OCwwLjkxOC0xLjUxNGw0LjQxMi02LjYzNGMwLjEwNy0wLjE3MiwwLjIyNi0wLjMxMSwwLjM1NC0wLjQxOHMwLjI5NS0wLjE5OSwwLjQ5OS0wLjI3NA0KCQljMC4yMDQtMC4wNzUsMC40NC0wLjEzNCwwLjcwOC0wLjE3OGMwLjI2OS0wLjA0MiwwLjU5Ni0wLjA2MywwLjk4Mi0wLjA2M3MwLjcwMywwLjAxNSwwLjk1LDAuMDQ3DQoJCWMwLjI0NywwLjAzMywwLjQyOSwwLjA4NiwwLjU0NywwLjE2MmMwLjExOCwwLjA3NSwwLjE3NywwLjE3NywwLjE3NywwLjMwNmMwLDAuMTI4LTAuMDQzLDAuMjc5LTAuMTI5LDAuNDUxTDI1LjM5NywzMy42MTd6Ii8+DQoJPHBhdGggZmlsbD0iI0ZGRkZGRiIgZD0iTTQzLjk0OCw2NC4yNDVjMCwwLjY2Ny0wLjAzMywxLjI3OC0wLjA5NywxLjgzNmMtMC4wNjQsMC41NTktMC4xNjcsMS4wODUtMC4zMDYsMS41NzgNCgkJYy0wLjE0LDAuNDk0LTAuMzMzLDAuOTgyLTAuNTgsMS40NjZjLTAuMjQ4LDAuNDgzLTAuNTUzLDAuOTkzLTAuOTE4LDEuNTI5bC00LjM4LDYuNTcxYy0wLjEwNywwLjE3MS0wLjIzMSwwLjMxMS0wLjM3MSwwLjQxOA0KCQlzLTAuMzA2LDAuMTk4LTAuNDk5LDAuMjczcy0wLjQyNCwwLjEzNS0wLjY5MiwwLjE3OHMtMC41OTYsMC4wNjQtMC45ODIsMC4wNjRjLTAuMzY1LDAtMC42NzEtMC4wMTctMC45MTgtMC4wNDkNCgkJYy0wLjI0Ny0wLjAzMi0wLjQyNC0wLjA5MS0wLjUzMS0wLjE3N2MtMC4xMDctMC4wODYtMC4xNjctMC4xODgtMC4xNzctMC4zMDZjLTAuMDExLTAuMTE4LDAuMDI3LTAuMjc0LDAuMTEzLTAuNDY3bDQuMjE5LTguNzkzDQoJCXYtNC4xMjNjMC0wLjU3OSwwLjA2NC0xLjA0MSwwLjE5My0xLjM4NGMwLjEyOS0wLjM0NCwwLjMxNi0wLjYwMiwwLjU2My0wLjc3M2MwLjI0Ny0wLjE3MiwwLjU2My0wLjI5LDAuOTUtMC4zNTQNCgkJYzAuMzg3LTAuMDYzLDAuODQ4LTAuMDk2LDEuMzg1LTAuMDk2YzAuNTE1LDAsMC45NjYsMC4wMzIsMS4zNTIsMC4wOTZjMC4zODcsMC4wNjQsMC43MDQsMC4xODMsMC45NSwwLjM1NA0KCQljMC4yNDcsMC4xNzIsMC40MjksMC40MywwLjU0NywwLjc3M0M0My44ODgsNjMuMjA0LDQzLjk0OCw2My42NjYsNDMuOTQ4LDY0LjI0NXogTTQzLjk0OCw0My4wODVjMCwwLjY4OC0wLjA0OSwxLjI2OC0wLjE0NiwxLjc0DQoJCWMtMC4wOTYsMC40NzItMC4yNzksMC44NTMtMC41NDcsMS4xNDNjLTAuMjY5LDAuMjktMC42MTcsMC40OTQtMS4wNDcsMC42MTJjLTAuNDMsMC4xMTktMC45NzcsMC4xNzgtMS42NDIsMC4xNzgNCgkJYy0wLjY4OCwwLTEuMjQ2LTAuMDU5LTEuNjc1LTAuMTc4Yy0wLjQzLTAuMTE4LTAuNzczLTAuMzIyLTEuMDMxLTAuNjEyYy0wLjI1OC0wLjI5LTAuNDM1LTAuNjcxLTAuNTMyLTEuMTQzDQoJCWMtMC4wOTctMC40NzItMC4xNDUtMS4wNTItMC4xNDUtMS43NGMwLTAuNzI5LDAuMDQ4LTEuMzM2LDAuMTQ1LTEuODJjMC4wOTctMC40ODMsMC4yNzQtMC44NjksMC41MzItMS4xNTkNCgkJYzAuMjU4LTAuMjksMC42MDEtMC40OTQsMS4wMzEtMC42MTJjMC40MjktMC4xMTcsMC45ODctMC4xNzcsMS42NzUtMC4xNzdjMC42NjUsMCwxLjIxMiwwLjA2LDEuNjQyLDAuMTc3DQoJCWMwLjQzLDAuMTE5LDAuNzc4LDAuMzIzLDEuMDQ3LDAuNjEyYzAuMjY5LDAuMjksMC40NTEsMC42NzYsMC41NDcsMS4xNTlDNDMuODk5LDQxLjc1LDQzLjk0OCw0Mi4zNTYsNDMuOTQ4LDQzLjA4NXoiLz4NCgk8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNNjYuNzgyLDUyLjU4N2MwLDAuODM3LTAuMDk3LDEuNDE3LTAuMjksMS43MzhjLTAuMTkyLDAuMzIzLTAuNDcyLDAuNDg0LTAuODM3LDAuNDg0SDUyLjE5Mw0KCQljLTAuMzg3LDAtMC42NzYtMC4xNjctMC44Ny0wLjVjLTAuMTkzLTAuMzMzLTAuMjktMC45MDctMC4yOS0xLjcyM3MwLjA5Ny0xLjM4NiwwLjI5LTEuNzA3YzAuMTkzLTAuMzIyLDAuNDgzLTAuNDgzLDAuODctMC40ODMNCgkJaDEzLjQ2MmMwLjE3MiwwLDAuMzI3LDAuMDMyLDAuNDY3LDAuMDk4YzAuMTM5LDAuMDYzLDAuMjU3LDAuMTg4LDAuMzU0LDAuMzY5YzAuMDk3LDAuMTg0LDAuMTcyLDAuNDE0LDAuMjI2LDAuNjkzDQoJCVM2Ni43ODIsNTIuMTc5LDY2Ljc4Miw1Mi41ODd6Ii8+DQoJPHBhdGggZmlsbD0iI0ZGRkZGRiIgZD0iTTg2Ljk3Nyw1Mi41ODdjMCwwLjgzNy0wLjA5NywxLjQxNy0wLjI5LDEuNzM4Yy0wLjE5MywwLjMyMy0wLjQ3MywwLjQ4NC0wLjgzNywwLjQ4NEg3Mi4zODcNCgkJYy0wLjM4NywwLTAuNjc3LTAuMTY3LTAuODctMC41Yy0wLjE5Mi0wLjMzMy0wLjI4OS0wLjkwNy0wLjI4OS0xLjcyM3MwLjA5Ny0xLjM4NiwwLjI4OS0xLjcwN2MwLjE5My0wLjMyMiwwLjQ4My0wLjQ4MywwLjg3LTAuNDgzDQoJCUg4NS44NWMwLjE3MSwwLDAuMzI2LDAuMDMyLDAuNDY2LDAuMDk4YzAuMTQsMC4wNjMsMC4yNTgsMC4xODgsMC4zNTQsMC4zNjljMC4wOTgsMC4xODQsMC4xNzMsMC40MTQsMC4yMjcsMC42OTMNCgkJUzg2Ljk3Nyw1Mi4xNzksODYuOTc3LDUyLjU4N3oiLz4NCjwvZz4NCjwvc3ZnPg0K"
+}

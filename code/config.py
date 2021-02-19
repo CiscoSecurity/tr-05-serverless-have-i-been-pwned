@@ -1,10 +1,10 @@
+import json
 from uuid import NAMESPACE_X500
-
-from __version__ import VERSION
 
 
 class Config:
-    VERSION = VERSION
+    settings = json.load(open('container_settings.json', 'r'))
+    VERSION = settings['VERSION']
 
     # HIBP returns 403 Forbidden "API request must include a user agent"
     # when using angle brackets, only round brackets are acceptable...
