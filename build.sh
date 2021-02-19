@@ -6,8 +6,8 @@ echo
 echo " Development Dockerfile build script."
 echo
 
-module_name="AbuseIPDB"
-image_name="tr-05-abuseipdb"
+module_name="Have I Been Pwned"
+image_name="tr-05-have-i-been-pwned"
 
 CONFIG_FILE=code/container_settings.json
 if [ -f $CONFIG_FILE ]; then
