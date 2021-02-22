@@ -14,6 +14,9 @@ The code is provided here purely for educational purposes.
 - We need an application that will translate API requests from SecureX Threat Response to the third-party integration, and vice versa.
 - We need an application that can be completely self contained within a virtualized container using Docker.
 
+
+## Testing (Optional)
+
 If you want to test the application you will require Docker and several dependencies from the [requirements.txt](code/requirements.txt) file:
 ```
 pip install --upgrade --requirement code/requirements.txt
