@@ -19,7 +19,7 @@ def test_positive_relationship_email(module_headers):
 
     Importance: Critical
     """
-    observable = [{'type': 'email', 'value': 'test@test.com'}]
+    observable = [{'type': 'email', 'value': 'fluffy@cisco.com'}]
     response = enrich_observe_observables(
         payload=observable,
         **{'headers': module_headers}
