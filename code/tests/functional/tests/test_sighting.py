@@ -22,7 +22,7 @@ def test_positive_sighting_email(module_headers):
 
     Importance: Critical
     """
-    observable = [{'type': 'email', 'value': 'test@test.com'}]
+    observable = [{'type': 'email', 'value': 'user@example.com'}]
     response = enrich_observe_observables(
         payload=observable,
         **{'headers': module_headers}
@@ -39,7 +39,7 @@ def test_positive_sighting_email(module_headers):
         assert sighting['observables'] == observable
         assert sighting['source'] == MODULE_NAME
         assert sighting['source_uri'] == (
-            f'{HIBP_URL}/account/test%40test.com'
+            f'{HIBP_URL}/account/user%40example.com'
         )
         assert sighting['targets'][0]['type'] == 'email'
         assert sighting['targets'][0]['observables'] == observable
@@ -55,7 +55,7 @@ def test_positive_sighting_email(module_headers):
     )
     relation = {
         'origin': MODULE_NAME,
-        'origin_uri': f'{HIBP_URL}/account/test%40test.com',
+        'origin_uri': f'{HIBP_URL}/account/user%40example.com',
         'relation': 'Leaked_From',
         'source': observable[0],
         'related': {'value': 'apollo.io', 'type': 'domain'}
