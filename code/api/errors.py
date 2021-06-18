@@ -30,5 +30,5 @@ class AuthenticationRequiredError(RelayError):
 
 
 class WatchdogError(RelayError):
-     CODE = 'health check failed'
-     MESSAGE = 'Invalid Health Check'
+    CODE = 'health check failed'
+    MESSAGE = 'Invalid Health Check'
