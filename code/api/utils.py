@@ -1,5 +1,6 @@
 import json
 from http import HTTPStatus
+from json import JSONDecodeError
 from ssl import SSLCertVerificationError
 from urllib.parse import quote
 
@@ -7,7 +8,8 @@ import jwt
 import requests
 from jwt import InvalidSignatureError, InvalidAudienceError, DecodeError
 from flask import request, current_app, jsonify
-from requests.exceptions import SSLError, InvalidURL, ConnectionError
+from requests.exceptions import (
+    SSLError, ConnectionError, InvalidURL, HTTPError)
 
 from api.errors import AuthenticationRequiredError
 
@@ -50,12 +52,15 @@ def get_auth_token():
 
 
 def get_public_key(jwks_host, token):
-    expected_errors = {
-        ConnectionError: WRONG_JWKS_HOST,
-        InvalidURL: WRONG_JWKS_HOST,
-    }
+    expected_errors = (
+        ConnectionError,
+        InvalidURL,
+        JSONDecodeError,
+        HTTPError
+    )
     try:
         response = requests.get(f"https://{jwks_host}/.well-known/jwks")
+        response.raise_for_status()
         jwks = response.json()
 
         public_keys = {}
@@ -67,9 +72,8 @@ def get_public_key(jwks_host, token):
         kid = jwt.get_unverified_header(token)['kid']
         return public_keys.get(kid)
 
-    except tuple(expected_errors) as error:
-        message = expected_errors[error.__class__]
-        raise AuthenticationRequiredError(message)
+    except expected_errors:
+        raise AuthenticationRequiredError(WRONG_JWKS_HOST)
 
 
 def get_key():
@@ -88,9 +92,9 @@ def get_key():
 
     token = get_auth_token()
     try:
-        jwks_host = jwt.decode(
-            token, options={'verify_signature': False}).get('jwks_host')
-        assert jwks_host
+        jwks_payload = jwt.decode(token, options={'verify_signature': False})
+        assert 'jwks_host' in jwks_payload
+        jwks_host = jwks_payload.get('jwks_host')
         key = get_public_key(jwks_host, token)
         aud = request.url_root
         payload = jwt.decode(

@@ -25,10 +25,10 @@ class RelayError(Exception):
 
 
 class AuthenticationRequiredError(RelayError):
-    CODE = 'authorization failed'
+    CODE = 'authorization error'
     MESSAGE = 'Authorization failed'
 
 
 class WatchdogError(RelayError):
-     CODE = 'health check failed'
-     MESSAGE = 'Invalid Health Check'
+    CODE = 'health check failed'
+    MESSAGE = 'Invalid Health Check'
