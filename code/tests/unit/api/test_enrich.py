@@ -412,7 +412,7 @@ def test_enrich_call_success(any_route,
         ]
 
         expected_headers = {
-            'user-agent': app.config['CTR_USER_AGENT'],
+            'User-Agent': app.config['CTR_USER_AGENT'],
             'hibp-api-key': enrich.get_key()
         }
 
@@ -486,7 +486,7 @@ def test_enrich_call_with_external_error_from_hibp_failure(hibp_api_route,
         )
 
         expected_headers = {
-            'user-agent': app.config['CTR_USER_AGENT'],
+            'User-Agent': app.config['CTR_USER_AGENT'],
             'hibp-api-key': enrich.get_key()
         }
 
