@@ -60,7 +60,6 @@ def hibp_api_route(request):
 
 
 def all_routes():
-    yield '/deliberate/observables'
     yield '/observe/observables'
     yield '/refer/observables'
 
@@ -139,9 +138,6 @@ def expected_payload(any_route, client):
     app = client.application
 
     payload = None
-
-    if any_route.startswith('/deliberate'):
-        payload = {}
 
     if any_route.startswith('/observe'):
         description_md = (
@@ -387,9 +383,6 @@ def test_enrich_call_success(any_route,
 
     response = None
 
-    if any_route.startswith('/deliberate'):
-        response = client.post(any_route)
-
     if any_route.startswith('/observe'):
         hibp_api_request.return_value = hibp_api_response(HTTPStatus.OK)
 
@@ -412,7 +405,7 @@ def test_enrich_call_success(any_route,
         ]
 
         expected_headers = {
-            'user-agent': app.config['CTR_USER_AGENT'],
+            'User-Agent': app.config['CTR_USER_AGENT'],
             'hibp-api-key': enrich.get_key()
         }
 
@@ -486,7 +479,7 @@ def test_enrich_call_with_external_error_from_hibp_failure(hibp_api_route,
         )
 
         expected_headers = {
-            'user-agent': app.config['CTR_USER_AGENT'],
+            'User-Agent': app.config['CTR_USER_AGENT'],
             'hibp-api-key': enrich.get_key()
         }
 
