@@ -9,7 +9,12 @@ import requests
 from jwt import InvalidSignatureError, InvalidAudienceError, DecodeError
 from flask import request, current_app, jsonify
 from requests.exceptions import (
-    SSLError, ConnectionError, InvalidURL, HTTPError)
+    SSLError,
+    ConnectionError,
+    InvalidURL,
+    HTTPError,
+    InvalidHeader,
+)
 
 from api.errors import AuthenticationRequiredError
 
@@ -150,6 +155,13 @@ def fetch_breaches(key, email, truncate=False):
         error = {
             'code': 'ssl certificate verification failed',
             'message': f'Unable to verify SSL certificate: {reason}.',
+        }
+        return None, error
+    except (InvalidHeader, UnicodeEncodeError):
+        error = {
+            'code': 'access denied',
+            'message': 'Authorization failed: Access denied due to improperly '
+                       'formed hibp-api-key.'
         }
         return None, error
 
